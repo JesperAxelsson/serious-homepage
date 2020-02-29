@@ -38,10 +38,11 @@ impl Component for Home {
 
     fn view(&self) -> Html {
         html! {
-            <section>
-                <h2> {"Home"} </h2>
-                { "home!" }
-            </section>
+            <div>
+                { "Welcome to my new page! Works?
+                    I will put some sort of image gallery here at some point..
+                    Ah, yes. The colors and layout is horrible." }
+            </div>
         }
     }
 }

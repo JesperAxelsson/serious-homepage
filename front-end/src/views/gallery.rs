@@ -38,12 +38,9 @@ impl Component for Gallery {
 
     fn view(&self) -> Html {
         html! {
-            <section>
-                <h2 class="title"> {"Gallery"} </h2>
-                <p>
+            <div>
                 { "Gallery!" }
-                </p>
-            </section>
+            </div>
         }
     }
 }

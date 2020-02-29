@@ -39,8 +39,6 @@ impl Component for Recipies {
     fn view(&self) -> Html {
         html! {
             <div>
-                <h2> {"Recipies"} </h2>
-
                 { "Recipies!" }
             </div>
         }

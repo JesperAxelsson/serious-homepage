@@ -6,6 +6,7 @@ use yew::prelude::*;
 use crate::views::home::Home;
 use crate::views::gallery::Gallery;
 use crate::views::recipies::Recipies;
+use crate::views::blog::Blog;
 
 pub struct App {
     link: ComponentLink<Self>,
@@ -22,6 +23,7 @@ pub enum PageState {
     Home,
     Recipies,
     Gallery,
+    Blog,
 }
 
 pub enum Msg {
@@ -72,6 +74,7 @@ impl Component for App {
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Home))>{"Home"}</a></li>
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Recipies))>{"Recipies"}</a></li>
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Gallery))>{"Gallery"}</a></li>
+                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Blog"}</a></li>
                         </ul>
                     </aside>
                 </div>
@@ -91,10 +94,27 @@ impl Component for App {
 
 impl App {
     fn render_body(&self) -> Html {
-        match self.state.page_state {
-            PageState::Home => html!{<Home /> },
-            PageState::Recipies => html!{<Recipies /> },
-            PageState::Gallery => html!{<Gallery /> },
+        html! {
+            <section>
+                <h3 class="title is-4 is-spaced"> 
+                    {
+                        match self.state.page_state {
+                            PageState::Home => "Home!",
+                            PageState::Recipies => "Recipies!",
+                            PageState::Gallery => "Gallery!",
+                            PageState::Blog => "Blog!"
+                        }
+                    } 
+                </h3>
+                {
+                    match self.state.page_state {
+                        PageState::Home => html!{<Home /> },
+                        PageState::Recipies => html!{<Recipies /> },
+                        PageState::Gallery => html!{<Gallery /> },
+                        PageState::Blog => html!{<Blog /> },
+                    }
+                }
+            </section>
         }
     }
 }
