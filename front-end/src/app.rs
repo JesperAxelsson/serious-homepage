@@ -3,6 +3,10 @@ use log::*;
 // use yew::format::Json;
 use yew::prelude::*;
 
+use crate::views::home::Home;
+use crate::views::gallery::Gallery;
+use crate::views::recipies::Recipies;
+
 pub struct App {
     link: ComponentLink<Self>,
     state: State,
@@ -71,7 +75,7 @@ impl Component for App {
                         </ul>
                     </aside>
                 </div>
-                <section class="column">
+                <section class="column is-pulled-right">
                     { self.render_body() }
                 </section>
             </div>
@@ -88,9 +92,9 @@ impl Component for App {
 impl App {
     fn render_body(&self) -> Html {
         match self.state.page_state {
-            PageState::Home => html!{<div>{ "Home!" } </div> },
-            PageState::Recipies => html!{<div>{ "Recipies!" } </div> },
-            PageState::Gallery => html!{<div>{ "Gallery!" } </div> },
+            PageState::Home => html!{<Home /> },
+            PageState::Recipies => html!{<Recipies /> },
+            PageState::Gallery => html!{<Gallery /> },
         }
     }
 }

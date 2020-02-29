@@ -2,6 +2,7 @@
 
 mod app;
 mod utils;
+mod views;
 
 use wasm_bindgen::prelude::*;
 
