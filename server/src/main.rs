@@ -1,8 +1,7 @@
 use sqlx::PgPool;
 use std::env;
-use warp::Filter;
 // use std::env;
-
+use warp::{http::Method, Filter};
 /// Provides a RESTful web server managing some Todos.
 ///
 /// API will be:
@@ -28,10 +27,13 @@ async fn main() {
 
     let db = models::blank_db();
 
+
     let api = filters::todos(db, pool);
 
+    let cors =  warp::cors().allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
+
     // View access logs by setting `RUST_LOG=todos`.
-    let routes = api.with(warp::log("todos"));
+    let routes = api.with(warp::log("todos")).with(cors);
     // Start up the server...
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 }
