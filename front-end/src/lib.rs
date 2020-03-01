@@ -3,6 +3,7 @@
 mod app;
 mod utils;
 mod views;
+mod fetch;
 
 use wasm_bindgen::prelude::*;
 

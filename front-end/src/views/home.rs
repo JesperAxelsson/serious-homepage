@@ -1,4 +1,6 @@
+#![allow(dead_code)]
 use yew::prelude::*;
+
 
 pub struct Home {
     link: ComponentLink<Self>,
@@ -21,7 +23,7 @@ impl Component for Home {
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         // match msg {
         //     Msg::Clicked => {
         //         self.onsignal.emit(());

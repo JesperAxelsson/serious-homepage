@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use log::*;
 // use serde_derive::{Deserialize, Serialize};
 // use yew::format::Json;
