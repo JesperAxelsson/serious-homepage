@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 use std::env;
-// use std::env;
+use dotenv::dotenv;
 use warp::{http::Method, Filter};
 /// Provides a RESTful web server managing some Todos.
 ///
@@ -12,6 +12,8 @@ use warp::{http::Method, Filter};
 /// - `DELETE /todos/:id`: delete a specific Todo.
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+    
     if env::var_os("RUST_LOG").is_none() {
         // Set `RUST_LOG=todos=debug` to see debug logs,
         // this only shows access logs.
@@ -21,7 +23,7 @@ async fn main() {
     // pretty_env_logger::init();
 
     // Postgres
-    let pool = PgPool::new(&env::var("DATABASE_URL").unwrap())
+    let pool = PgPool::new(&env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'"))
         .await
         .expect("Failed to connect to pool");
 
@@ -301,89 +303,89 @@ mod models {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use sqlx::PgPool;
-    use std::env;
-    use warp::http::StatusCode;
-    use warp::test::request;
+// #[cfg(test)]
+// mod tests {
+//     use sqlx::PgPool;
+//     use std::env;
+//     use warp::http::StatusCode;
+//     use warp::test::request;
 
-    use super::{
-        filters,
-        models::{self, Todo},
-    };
+//     use super::{
+//         filters,
+//         models::{self, Todo},
+//     };
 
-    #[tokio::test]
-    async fn test_post() {
-        let db = models::blank_db();
-        let pool = PgPool::new(&env::var("DATABASE_URL").unwrap())
-            .await
-            .expect("Failed to connect to pool");
-        let api = filters::todos(db, pool);
+//     #[tokio::test]
+//     async fn test_post() {
+//         let db = models::blank_db();
+//         let pool = PgPool::new(&env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'"))
+//             .await
+//             .expect("Failed to connect to pool");
+//         let api = filters::todos(db, pool);
 
-        let resp = request()
-            .method("POST")
-            .path("/todos")
-            .json(&Todo {
-                id: 1,
-                text: "test 1".into(),
-                completed: false,
-            })
-            .reply(&api)
-            .await;
+//         let resp = request()
+//             .method("POST")
+//             .path("/todos")
+//             .json(&Todo {
+//                 id: 1,
+//                 text: "test 1".into(),
+//                 completed: false,
+//             })
+//             .reply(&api)
+//             .await;
 
-        assert_eq!(resp.status(), StatusCode::CREATED);
-    }
+//         assert_eq!(resp.status(), StatusCode::CREATED);
+//     }
 
-    #[tokio::test]
-    async fn test_post_conflict() {
-        let pool = PgPool::new(&env::var("DATABASE_URL").unwrap())
-            .await
-            .expect("Failed to connect to pool");
+//     #[tokio::test]
+//     async fn test_post_conflict() {
+//         let pool = PgPool::new(&env::var("DATABASE_URL").unwrap())
+//             .await
+//             .expect("Failed to connect to pool");
 
-        let db = models::blank_db();
-        db.lock().await.push(todo1());
-        let api = filters::todos(db, pool);
+//         let db = models::blank_db();
+//         db.lock().await.push(todo1());
+//         let api = filters::todos(db, pool);
 
-        let resp = request()
-            .method("POST")
-            .path("/todos")
-            .json(&todo1())
-            .reply(&api)
-            .await;
+//         let resp = request()
+//             .method("POST")
+//             .path("/todos")
+//             .json(&todo1())
+//             .reply(&api)
+//             .await;
 
-        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
-    }
+//         assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+//     }
 
-    #[tokio::test]
-    async fn test_put_unknown() {
-        let pool = PgPool::new(&env::var("DATABASE_URL").unwrap())
-            .await
-            .expect("Failed to connect to pool");
+//     #[tokio::test]
+//     async fn test_put_unknown() {
+//         let pool = PgPool::new(&env::var("DATABASE_URL").unwrap())
+//             .await
+//             .expect("Failed to connect to pool");
 
-        let _ = pretty_env_logger::try_init();
-        let db = models::blank_db();
-        let api = filters::todos(db, pool);
+//         let _ = pretty_env_logger::try_init();
+//         let db = models::blank_db();
+//         let api = filters::todos(db, pool);
 
-        let resp = request()
-            .method("PUT")
-            .path("/todos/1")
-            .header("authorization", "Bearer admin")
-            .json(&todo1())
-            .reply(&api)
-            .await;
+//         let resp = request()
+//             .method("PUT")
+//             .path("/todos/1")
+//             .header("authorization", "Bearer admin")
+//             .json(&todo1())
+//             .reply(&api)
+//             .await;
 
-        assert_eq!(resp.status(), StatusCode::NOT_FOUND);
-    }
+//         assert_eq!(resp.status(), StatusCode::NOT_FOUND);
+//     }
 
-    fn todo1() -> Todo {
-        Todo {
-            id: 1,
-            text: "test 1".into(),
-            completed: false,
-        }
-    }
-}
+//     fn todo1() -> Todo {
+//         Todo {
+//             id: 1,
+//             text: "test 1".into(),
+//             completed: false,
+//         }
+//     }
+// }
 
 // Debug
 // Connection Times (ms)
