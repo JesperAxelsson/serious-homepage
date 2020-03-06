@@ -75,6 +75,7 @@ impl Component for App {
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Home))>{"Home"}</a></li>
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Recipies))>{"Recipies"}</a></li>
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Gallery))>{"Gallery"}</a></li>
+                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Todo"}</a></li>
                             <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Blog"}</a></li>
                         </ul>
                     </aside>

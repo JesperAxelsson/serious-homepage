@@ -1,13 +1,13 @@
 use yew::prelude::*;
 
-pub struct Blog {}
+pub struct Todo {}
 
-impl Component for Blog {
+impl Component for Todo {
     type Message = ();
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Blog {}
+        Todo {}
     }
 
     fn update(&mut self, _: Self::Message) -> ShouldRender {
@@ -17,10 +17,7 @@ impl Component for Blog {
     fn view(&self) -> Html {
         html! {
             <div>
-                <h2>{ "Everyone needs a blog right?" }</h2>
-                <p>
-                    { "Some very wise words... "}
-                </p>
+                { "Everyone needs a Todo right?" }
             </div>
         }
     }
