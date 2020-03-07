@@ -4,10 +4,10 @@ use log::*;
 // use yew::format::Json;
 use yew::prelude::*;
 
-use crate::views::home::Home;
-use crate::views::gallery::Gallery;
-use crate::views::recipies::Recipies;
-use crate::views::blog::Blog;
+use crate::views::Home;
+use crate::views::Gallery;
+use crate::views::Recipies;
+use crate::views::Blog;
 
 pub struct App {
     link: ComponentLink<Self>,

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use log::*;
 use yew::prelude::*;
 use crate::fetch::*;
+use crate::components::ViewRecipe;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Recipe {
@@ -107,7 +108,9 @@ impl Component for Recipies {
                     }
                 }
                 </div>
-
+                <div>
+                    <ViewRecipe />
+                </div>
             </div>
         }
     }

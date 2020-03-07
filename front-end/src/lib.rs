@@ -4,6 +4,8 @@ mod app;
 mod utils;
 mod views;
 mod fetch;
+mod components;
+mod markdown;
 
 use wasm_bindgen::prelude::*;
 
