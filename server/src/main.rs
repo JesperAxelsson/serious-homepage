@@ -1,7 +1,10 @@
+mod models;
+
+use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
-use dotenv::dotenv;
 use warp::{http::Method, Filter};
+
 /// Provides a RESTful web server managing some Todos.
 ///
 /// API will be:
@@ -13,26 +16,25 @@ use warp::{http::Method, Filter};
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    
+
     if env::var_os("RUST_LOG").is_none() {
         // Set `RUST_LOG=todos=debug` to see debug logs,
         // this only shows access logs.
         env::set_var("RUST_LOG", "todos=info");
     }
 
-    // pretty_env_logger::init();
+    let db_url = env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'");
+
+    pretty_env_logger::init();
 
     // Postgres
-    let pool = PgPool::new(&env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'"))
+    let pool = PgPool::new(&db_url)
         .await
         .expect("Failed to connect to pool");
 
-    let db = models::blank_db();
+    let api = filters::todos(pool);
 
-
-    let api = filters::todos(db, pool);
-
-    let cors =  warp::cors().allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
+    let cors = warp::cors().allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
 
     // View access logs by setting `RUST_LOG=todos`.
     let routes = api.with(warp::log("todos")).with(cors);
@@ -42,20 +44,19 @@ async fn main() {
 
 mod filters {
     use super::handlers;
-    use super::models::{Db, ListOptions, Todo};
+    use super::models::{ListOptions, Todo};
     use sqlx::PgPool;
     use warp::Filter;
 
     /// The 4 TODOs filters combined.
     pub fn todos(
-        db: Db,
         pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         todos_get(pool.clone())
             .or(todos_list(pool.clone()))
             .or(todos_create(pool.clone()))
             .or(todos_update(pool.clone()))
-            .or(todos_delete(db))
+            .or(todos_delete(pool.clone()))
     }
 
     pub fn todos_get(
@@ -102,7 +103,7 @@ mod filters {
 
     /// DELETE /todos/:id
     pub fn todos_delete(
-        db: Db,
+        pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         // We'll make one of our endpoints admin-only to show how authentication filters are used
         let admin_only = warp::header::exact("authorization", "Bearer admin");
@@ -114,12 +115,8 @@ mod filters {
             // rather because the param is wrong for that other path.
             .and(admin_only)
             .and(warp::delete())
-            .and(with_db(db))
+            .and(with_pg(pool))
             .and_then(handlers::delete_todo)
-    }
-
-    fn with_db(db: Db) -> impl Filter<Extract = (Db,), Error = std::convert::Infallible> + Clone {
-        warp::any().map(move || db.clone())
     }
 
     fn with_pg(
@@ -140,7 +137,7 @@ mod filters {
 /// with the exact arguments we'd expect from each filter in the chain.
 /// No tuples are needed, it's auto flattened for the functions.
 mod handlers {
-    use super::models::{Db, ListOptions, Todo};
+    use super::models::{ListOptions, Todo};
     use sqlx::PgPool;
     use std::convert::Infallible;
     use warp::http::StatusCode;
@@ -157,11 +154,16 @@ mod handlers {
                 completed: rec.completed,
             };
 
-            // Ok(warp::reply::json(&todo))
-            Ok(warp::reply::with_status(warp::reply::json(&todo), StatusCode::OK))
+            Ok(warp::reply::with_status(
+                warp::reply::json(&todo),
+                StatusCode::OK,
+            ))
         } else {
             let msg = "Entry not found".to_string();
-            Ok(warp::reply::with_status(warp::reply::json(&msg), StatusCode::NOT_FOUND))
+            Ok(warp::reply::with_status(
+                warp::reply::json(&msg),
+                StatusCode::NOT_FOUND,
+            ))
         }
     }
 
@@ -240,22 +242,21 @@ mod handlers {
         }
     }
 
-    pub async fn delete_todo(id: i64, db: Db) -> Result<impl warp::Reply, Infallible> {
+    pub async fn delete_todo(id: i64, mut pool: PgPool) -> Result<impl warp::Reply, Infallible> {
         log::debug!("delete_todo: id={}", id);
 
-        let mut vec = db.lock().await;
+        let rec = sqlx::query!(
+            r#"
+                DELETE FROM todo 
+                WHERE id = $1
+            "#,
+            id
+        )
+        .execute(&mut pool)
+        .await
+        .expect("Failed to update TODO");
 
-        let len = vec.len();
-        vec.retain(|todo| {
-            // Retain all Todos that aren't this id...
-            // In other words, remove all that *are* this id...
-            todo.id != id
-        });
-
-        // If the vec is smaller, we found and deleted a Todo!
-        let deleted = vec.len() != len;
-
-        if deleted {
+        if rec == 1 {
             // respond with a `204 No Content`, which means successful,
             // yet no body expected...
             Ok(StatusCode::NO_CONTENT)
@@ -263,43 +264,6 @@ mod handlers {
             log::debug!("    -> todo id not found!");
             Ok(StatusCode::NOT_FOUND)
         }
-    }
-}
-
-mod models {
-    use serde_derive::{Deserialize, Serialize};
-    use std::sync::Arc;
-    use tokio::sync::Mutex;
-
-    /// So we don't have to tackle how different database work, we'll just use
-    /// a simple in-memory DB, a vector synchronized by a mutex.
-    pub type Db = Arc<Mutex<Vec<Todo>>>;
-
-    pub fn blank_db() -> Db {
-        Arc::new(Mutex::new(Vec::new()))
-    }
-
-    #[derive(Debug, Deserialize, Serialize, Clone)]
-    pub struct Todo {
-        pub id: i64,
-        pub text: String,
-        pub completed: bool,
-    }
-
-    // The query parameters for list_todos.
-    #[derive(Debug, Deserialize)]
-    pub struct ListOptions {
-        pub offset: Option<i64>,
-        pub limit: Option<i64>,
-    }
-
-    #[derive(Debug, Deserialize, Serialize, Clone)]
-    pub struct Recipe {
-        pub id: u64,
-        pub name: String,
-        pub html: String,
-        // pub created: bool,
-        // pub updated: DateTime,
     }
 }
 
