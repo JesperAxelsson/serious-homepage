@@ -3,11 +3,11 @@ use yew::prelude::*;
 // use crate::markdown;
 use pulldown_cmark::{html, Options, Parser};
 
-pub struct Recipe {
-    pub id: i64,
-    pub title: String,
-    pub text: String,
-}
+// pub struct Recipe {
+//     pub id: i64,
+//     pub title: String,
+//     pub text: String,
+// }
 
 pub struct ViewRecipe {
     markdown: String,
@@ -33,7 +33,7 @@ Hello, **世界**!"#.to_string(),
     fn view(&self) -> Html {
         html! {
             <article class="markdown-body">
-            { renderMark(&self.markdown) }
+            { render_mark(&self.markdown) }
             // render( markdown_to_html(&self.markdown, &ComrakOptions::default()) )
             </article>
         }
@@ -41,14 +41,13 @@ Hello, **世界**!"#.to_string(),
     }
 }
 
-fn renderMark(mark: &str) -> Html {
+fn render_mark(mark: &str) -> Html {
 
     use web_sys::{console, Node};
     use yew::virtual_dom::VNode;
-    use yew::{Component, ComponentLink, Html, ShouldRender};
     // Set up options and parser. Strikethroughs are not part of the CommonMark standard
     // and we therefore must enable it explicitly.
-    let mut options = Options::empty();
+    let options = Options::empty();
     // options.insert(Options::ENABLE_STRIKETHROUGH);
     let parser = Parser::new_ext(mark, options);
 

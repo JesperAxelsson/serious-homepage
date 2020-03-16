@@ -4,10 +4,10 @@ use log::*;
 // use yew::format::Json;
 use yew::prelude::*;
 
-use crate::views::Home;
-use crate::views::Gallery;
-use crate::views::Recipies;
 use crate::views::Blog;
+use crate::views::Gallery;
+use crate::views::Home;
+use crate::views::Recipies;
 
 pub struct App {
     link: ComponentLink<Self>,
@@ -53,40 +53,36 @@ impl Component for App {
 
     fn view(&self) -> Html {
         info!("rendered!");
+        
         html! {
-
-        <div class="container ">
-
-            <header class="section is-desktop">
-                    <h1 class="title">
+        <div class="max-h-screen antialiased" style="height: 100%;">
+            <header class="pl-2 bg-gold shadow-xl">
+                    <h1 class="text-2xl text-dark font-medium">
                         { "Welcome my homepage!" }
                     </h1>
-                    <p class="subtitle">
+                    <p class="text-sm text-darkblue">
                         { "Very nice site!" }
                     </p>
             </header>
-            <div class="columns is-tablet">
-                <div class="column is-2">
-                    <aside class="menu" >
-                        <p class="menu-label">
-                            {"Pick your poison"}
-                        </p>
+            <div class="flex bg-beige">
+                <div class="pl-2 shadow">
+                    <aside class="pr-4 my-3" >
                         <ul>
-                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Home))>{"Home"}</a></li>
-                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Recipies))>{"Recipies"}</a></li>
-                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Gallery))>{"Gallery"}</a></li>
-                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Todo"}</a></li>
-                            <li><a onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Blog"}</a></li>
+                            <li><a class="text-darkblue" onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Home))>{"Home"}</a></li>
+                            <li><a class="text-darkblue" onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Recipies))>{"Recipies"}</a></li>
+                            <li><a class="text-darkblue" onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Gallery))>{"Gallery"}</a></li>
+                            <li><a class="text-darkblue" onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Todo"}</a></li>
+                            <li><a class="text-darkblue" onclick=self.link.callback(|_| Msg::ChangePageState(PageState::Blog))>{"Blog"}</a></li>
                         </ul>
                     </aside>
                 </div>
-                <section class="column is-pulled-right">
+                <section class="w-full bg-darkgreen">
                     { self.render_body() }
                 </section>
             </div>
-            <footer class="section">
-                <div class="content has-text-centered">
-                    <p>{ "Written by " }<a href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></p>
+            <footer class="flex text-sm w-full bg-beige">
+                <div class="items-center justify-center">
+                    <p>{ "Written by " }<a class="text-indigo-900" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></p>
                 </div>
             </footer>
         </div>
@@ -98,7 +94,7 @@ impl App {
     fn render_body(&self) -> Html {
         html! {
             <section>
-                <h3 class="title is-4 is-spaced"> 
+                <h3 class="title is-4 is-spaced">
                     {
                         match self.state.page_state {
                             PageState::Home => "Home!",
@@ -106,7 +102,7 @@ impl App {
                             PageState::Gallery => "Gallery!",
                             PageState::Blog => "Blog!"
                         }
-                    } 
+                    }
                 </h3>
                 {
                     match self.state.page_state {
@@ -120,4 +116,3 @@ impl App {
         }
     }
 }
-
