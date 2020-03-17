@@ -61,12 +61,12 @@ impl Component for App {
         <div class="antialiased h-screen bg-beige flex flex-col">
             <header class="pl-6 pb-2 bg-gold shadow  h-24 flex">
                 <div class="self-center">
-                    <h1 class="text-3xl text-dark font-bold leading-tight tracking-wide">
+                    <h1 class="text-4xl font-display text-darkblue font-black leading-tight ">
                         { "Welcome my homepage!" }
                     </h1>
-                    <p class="text-sm text-darkblue  ">
-                        { "Very nice site!" }
-                    </p>
+                    // <p class="text-sm font-subheader text-light text-darkblue  ">
+                    //     { "Very nice site!" }
+                    // </p>
                 </div>
             </header>
             <div class="flex h-full">
