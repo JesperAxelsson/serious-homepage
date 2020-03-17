@@ -57,40 +57,37 @@ impl Component for App {
     fn view(&self) -> Html {
         info!("rendered!");
 
-        let link_class = "py-1 pl-2 text-darkblue font-medium";
-        let active_link_class = "py-1 pl-2 text-darkblue font-medium";
-
         html! {
-        <div class="antialiased h-full ">
-            <header class="pl-3 bg-gold shadow-xl h-24 flex">
+        <div class="antialiased h-screen bg-beige flex flex-col">
+            <header class="pl-6 pb-2 bg-gold shadow  h-24 flex">
                 <div class="self-center">
-                    <h1 class="text-3xl text-dark font-bold">
+                    <h1 class="text-3xl text-dark font-bold leading-tight tracking-wide">
                         { "Welcome my homepage!" }
                     </h1>
-                    <p class="text-sm text-darkblue">
+                    <p class="text-sm text-darkblue  ">
                         { "Very nice site!" }
                     </p>
                 </div>
             </header>
-            <div class="flex bg-beige h-full">
-                <div class="shadow h-full">
-                    <aside class="py-3 flex flex-col" >
+            <div class="flex h-full">
+                <div class="w-auto h-full flex flex-col">
+                    <aside class="py-3 shadow h-full flex flex-col" >
                         { self.render_link(PageState::Home, "Home") }
                         { self.render_link(PageState::Recipies, "Recipies") }
                         { self.render_link(PageState::Gallery, "Gallery") }
                         { self.render_link(PageState::Todo, "Todo") }
                         { self.render_link(PageState::Blog, "Blog") }
                     </aside>
+                    <div class="pl-3 pb-3 pt-2 bg-darkgreen text-sm">
+                        <p class="text-darkblue">{ "Written by " }<br/><div><a class="text-beige font-medium truncate" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></div></p>
+                   </div>
                 </div>
-                <section class="w-full bg-darkgreen p-5">
-                    { self.render_body() }
-                </section>
+                <div class="bg-darkgreen w-full px-6 pt-6 ">
+                    <section class="w-full bg-beige shadow h-full p-5 mr-3">
+                        { self.render_body() }
+                    </section>
+                </div>
             </div>
-            <footer class="flex text-sm  bg-beige">
-                <div class="items-center justify-center">
-                    <p>{ "Written by " }<a class="text-indigo-900" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></p>
-                </div>
-            </footer>
         </div>
         }
     }
@@ -126,15 +123,15 @@ impl App {
 
     fn render_link(&self, page_state: PageState, title: &str) -> Html {
         let link_class = if self.state.page_state == page_state {
-            "py-1 pl-2  bg-darkgreen text-beige font-medium"
+            "py-1 pl-2 shadow bg-darkgreen text-beige-lighter font-medium "
         } else {
-            "py-1 pl-2 text-darkblue font-medium"
+            "py-1 pl-2 text-darkblue "
         };
 
         html! {
-            <div class="pl-1">
-                <div class={link_class}><a class="pr-4" onclick=self.link.callback(move |_| Msg::ChangePageState(page_state))>{title}</a></div>
-            </div>
+            <a class="pl-4 cursor-pointer mb-2" onclick=self.link.callback(move |_| Msg::ChangePageState(page_state)) >
+                <div class={link_class}><div class="pr-4 tracking-wider font-semibold" >{title}</div></div>
+            </a>
         }
     }
 }
