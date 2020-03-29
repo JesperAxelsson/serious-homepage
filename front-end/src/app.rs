@@ -41,7 +41,8 @@ impl Component for App {
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         let state = State {
-            page_state: PageState::Home,
+            page_state: PageState::Blog,
+            // page_state: PageState::Home,
         };
         App { link, state }
     }
@@ -59,31 +60,31 @@ impl Component for App {
 
         html! {
         <div class="antialiased h-screen bg-beige flex flex-col">
-            <header class="pl-6 pb-2 bg-gold shadow  h-24 flex">
-                <div class="self-center">
-                    <h1 class="text-4xl font-display text-darkblue font-black leading-tight ">
+            <header class="sm:pl-6 h-12 sm:h-20 bg-gold shadow flex flex-shrink-0">
+                <div class="self-center mx-auto sm:m-0">
+                    <h1 class="text-center text-3xl sm:text-4xl font-display text-darkblue font-black leading-tight ">
                         { "Welcome my homepage!" }
                     </h1>
-                    // <p class="text-sm font-subheader text-light text-darkblue  ">
+                    // <p class="text-sm font-subheader text-light text-darkblue">
                     //     { "Very nice site!" }
                     // </p>
                 </div>
             </header>
-            <div class="flex h-full">
-                <div class="w-auto h-full flex flex-col">
-                    <aside class="py-3 shadow h-full flex flex-col" >
+            <div class="flex flex-col sm:flex-row h-full">
+                <div class="w-auto flex-grow-0 sm:flex-grow-1 h-full flex flex-col justify-between">
+                    <div class="px-2 sm:px-0 sm:py-3 shadow sm:flex-grow-1 sm:h-full inline-flex sm:flex-col" >
                         { self.render_link(PageState::Home, "Home") }
                         { self.render_link(PageState::Recipies, "Recipies") }
                         { self.render_link(PageState::Gallery, "Gallery") }
                         { self.render_link(PageState::Todo, "Todo") }
                         { self.render_link(PageState::Blog, "Blog") }
-                    </aside>
-                    <div class="pl-3 pb-3 pt-2 bg-darkgreen text-sm">
+                    </div>
+                    <div class="hidden sm:inline-flex sm:pl-3 sm:pb-3 sm:pt-2 bg-darkgreen text-sm sm:text-regular">
                         <p class="text-darkblue">{ "Written by " }<br/><div><a class="text-beige font-medium truncate" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></div></p>
                    </div>
                 </div>
-                <div class="bg-darkgreen w-full px-6 pt-6 ">
-                    <section class="w-full bg-beige shadow h-full p-5 mr-3">
+                <div class="bg-darkgreen w-full px-4 pt-4 sm:px-6 sm:pt-6 flex-grow flex">
+                    <section class="w-full bg-beige flex flex-grow shadow p-5 sm:mr-3">
                         { self.render_body() }
                     </section>
                 </div>
@@ -129,8 +130,8 @@ impl App {
         };
 
         html! {
-            <a class="pl-4 cursor-pointer mb-2" onclick=self.link.callback(move |_| Msg::ChangePageState(page_state)) >
-                <div class={link_class}><div class="pr-4 tracking-wider font-semibold" >{title}</div></div>
+            <a class="sm:pl-4 cursor-pointer sm:mb-2" onclick=self.link.callback(move |_| Msg::ChangePageState(page_state)) >
+                <div class={link_class}><div class="text-sm pr-1 sm:pr-4 tracking-wider font-semibold " title={title} > {title} </div></div>
             </a>
         }
     }

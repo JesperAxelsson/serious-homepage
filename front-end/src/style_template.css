@@ -5,3 +5,25 @@
 @tailwind utilities;
 
 /* Custom css */
+@responsive {
+    .text-shadow {
+        color: transparent;
+        background-color: #A4978E;
+        background-clip: text;
+        text-shadow: 0 2px 5px #525B56;
+    }
+
+    .depth {
+        color: #525B56;
+        position: relative;
+    }
+    .depth:before, .depth:after {
+        content: attr(title);
+        color: rgba(164, 151, 142, 0.2);
+        /* color: rgba(82, 91, 86, 0.2); */
+
+        position: absolute;
+    }
+    .depth:before { top: 1px; left: 1px }
+    .depth:after  { top: 2px; left: 2px }
+}
