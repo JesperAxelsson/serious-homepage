@@ -16,10 +16,9 @@ impl Component for Blog {
 
     fn view(&self) -> Html {
         html! {
-            <div class="flex flex-col h-full">
-                <h2>{ "Everyone needs a blog right?" }</h2>
-                <div class="flex-grow overflow-y-auto">
-                    <div class="">
+            <div class="flex flex-col   overflow-hidden">
+                <h2 class="flex-shrink-0">{ "Everyone needs a blog right?" }</h2>
+                <div class="flex-1 overflow-y-auto">
                         <p>
                             {
                                 r#"
@@ -162,7 +161,6 @@ impl Component for Blog {
                                 "#
                             }
                         </p>
-                        </div>
                     </div>
             </div>
         }

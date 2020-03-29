@@ -59,7 +59,7 @@ impl Component for App {
         info!("rendered!");
 
         html! {
-        <div class="antialiased h-screen bg-beige flex flex-col">
+        <div class="antialiased h-screen bg-beige flex flex-col max-h-full">
             <header class="sm:pl-6 h-12 sm:h-20 bg-gold shadow flex flex-shrink-0">
                 <div class="self-center mx-auto sm:m-0">
                     <h1 class="text-center text-3xl sm:text-4xl font-display text-darkblue font-black leading-tight ">
@@ -70,23 +70,23 @@ impl Component for App {
                     // </p>
                 </div>
             </header>
-            <div class="flex flex-col sm:flex-row h-full">
-                <div class="w-auto flex-grow-0 sm:flex-grow-1 h-full flex flex-col justify-between">
-                    <div class="px-2 sm:px-0 sm:py-3 shadow sm:flex-grow-1 sm:h-full inline-flex sm:flex-col" >
-                        { self.render_link(PageState::Home, "Home") }
-                        { self.render_link(PageState::Recipies, "Recipies") }
-                        { self.render_link(PageState::Gallery, "Gallery") }
-                        { self.render_link(PageState::Todo, "Todo") }
-                        { self.render_link(PageState::Blog, "Blog") }
-                    </div>
-                    <div class="hidden sm:inline-flex sm:pl-3 sm:pb-3 sm:pt-2 bg-darkgreen text-sm sm:text-regular">
-                        <p class="text-darkblue">{ "Written by " }<br/><div><a class="text-beige font-medium truncate" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></div></p>
+            <div class="flex flex-col sm:flex-row flex-1 overflow-hidden">
+                <div class="w-auto flex-grow-0 sm:flex-grow-1 ">
+                    <div class="shadow flex flex-col h-full flex-1 justify-between max-h-full">
+                        <div class="px-2 sm:px-0 sm:py-3 flex sm:flex-grow-1 flex-1 sm:flex-col" >
+                            { self.render_link(PageState::Home, "Home") }
+                            { self.render_link(PageState::Recipies, "Recipies") }
+                            { self.render_link(PageState::Gallery, "Gallery") }
+                            { self.render_link(PageState::Todo, "Todo") }
+                            { self.render_link(PageState::Blog, "Blog") }
+                        </div>
+                        <div class="hidden sm:flex flex-grow-0 sm:pl-3 sm:pb-3 sm:pt-2 bg-darkgreen text-sm sm:text-regular text-center">
+                            <p class="text-darkblue">{ "Written by " }<br/><div><a class="text-beige font-medium truncate" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></div></p>
+                        </div>
                    </div>
                 </div>
-                <div class="bg-darkgreen w-full px-4 pt-4 sm:px-6 sm:pt-6 flex-grow flex">
-                    <section class="w-full bg-beige flex flex-grow shadow p-5 sm:mr-3">
-                        { self.render_body() }
-                    </section>
+                <div class="bg-darkgreen w-full px-4 pt-4 sm:px-6 sm:pt-6 flex flex-1">
+                    { self.render_body() }
                 </div>
             </div>
         </div>
@@ -97,7 +97,7 @@ impl Component for App {
 impl App {
     fn render_body(&self) -> Html {
         html! {
-            <section>
+            <section class="w-full bg-beige flex-grow flex flex-col shadow p-5 ">
                 <h3 class="">
                     {
                         match self.state.page_state {
