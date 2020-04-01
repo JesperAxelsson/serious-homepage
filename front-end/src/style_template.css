@@ -27,3 +27,10 @@
     .depth:before { top: 1px; left: 1px }
     .depth:after  { top: 2px; left: 2px }
 }
+
+
+
+body {
+    scrollbar-width: thin;
+    scrollbar-color: #525B56 #A4978E;
+}
