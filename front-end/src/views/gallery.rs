@@ -4,14 +4,18 @@ use yew::prelude::*;
 
 pub struct Gallery {
     link: ComponentLink<Self>,
+    state: GalleryState,
 }
 
-pub enum Msg {
+pub enum GalleryState {
+    Main,
+    Browsing,
 }
+
+pub enum Msg {}
 
 #[derive(Clone, PartialEq, Properties)]
-pub struct Props {
-}
+pub struct Props {}
 
 impl Component for Gallery {
     type Message = Msg;
@@ -20,6 +24,7 @@ impl Component for Gallery {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Gallery {
             link,
+            state: GalleryState::Main,
         }
     }
 
@@ -39,10 +44,15 @@ impl Component for Gallery {
     // }
 
     fn view(&self) -> Html {
-        html! {
-            <div>
-                { "Gallery!" }
-            </div>
+        match self.state {
+            GalleryState::Main => html! {
+                <div>
+                    { "Gallery!" }
+                </div>
+            },
+            GalleryState::Browsing => html! {
+                <div>{ "Neat" } </div>
+            },
         }
     }
 }
