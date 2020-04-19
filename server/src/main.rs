@@ -142,9 +142,9 @@ mod handlers {
     use std::convert::Infallible;
     use warp::http::StatusCode;
 
-    pub async fn get_todo(id: i64, mut pool: PgPool) -> Result<impl warp::Reply, Infallible> {
+    pub async fn get_todo(id: i64, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
         let rec = sqlx::query!("select id, text, completed from todo where id = $1", id)
-            .fetch_one(&mut pool)
+            .fetch_one(&pool)
             .await;
 
         if let Ok(rec) = rec {
@@ -169,14 +169,14 @@ mod handlers {
 
     pub async fn list_todos(
         opts: ListOptions,
-        mut pool: PgPool,
+        pool: PgPool,
     ) -> Result<impl warp::Reply, Infallible> {
         let todos = sqlx::query!(
             "select id, text, completed from todo order by id limit $1 offset $2",
             opts.limit.unwrap_or(std::i64::MAX),
             opts.offset.unwrap_or(0)
         )
-        .fetch_all(&mut pool)
+        .fetch_all(&pool)
         .await
         .expect("Failed to execute list_todos query")
         .into_iter()
@@ -190,10 +190,7 @@ mod handlers {
         Ok(warp::reply::json(&todos))
     }
 
-    pub async fn create_todo(
-        create: Todo,
-        mut pool: PgPool,
-    ) -> Result<impl warp::Reply, Infallible> {
+    pub async fn create_todo(create: Todo, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
         log::debug!("create_todo: {:?}", create);
 
         let _rec = sqlx::query!(
@@ -204,7 +201,7 @@ mod handlers {
             "#,
             create.text
         )
-        .fetch_one(&mut pool)
+        .fetch_one(&pool)
         .await
         .expect("Failed to insert new TODO");
 
@@ -214,7 +211,7 @@ mod handlers {
     pub async fn update_todo(
         id: i64,
         update: Todo,
-        mut pool: PgPool,
+        pool: PgPool,
     ) -> Result<impl warp::Reply, Infallible> {
         log::debug!("update_todo: id={}, todo={:?}", id, update);
 
@@ -228,7 +225,7 @@ mod handlers {
             update.completed,
             update.text
         )
-        .execute(&mut pool)
+        .execute(&pool)
         .await
         .expect("Failed to update TODO");
 
@@ -242,7 +239,7 @@ mod handlers {
         }
     }
 
-    pub async fn delete_todo(id: i64, mut pool: PgPool) -> Result<impl warp::Reply, Infallible> {
+    pub async fn delete_todo(id: i64, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
         log::debug!("delete_todo: id={}", id);
 
         let rec = sqlx::query!(
@@ -252,7 +249,7 @@ mod handlers {
             "#,
             id
         )
-        .execute(&mut pool)
+        .execute(&pool)
         .await
         .expect("Failed to update TODO");
 

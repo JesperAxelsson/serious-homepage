@@ -20,4 +20,4 @@ log = "0.4"
 
 dotenv = "0.15"
 
-sqlx = { version = "0.2", default-features = false, features = [ "runtime-tokio", "macros", "postgres" ] }
+sqlx = { version = "0.3", default-features = false, features = [ "runtime-tokio", "macros", "postgres" ] }
