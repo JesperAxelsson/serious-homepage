@@ -1,30 +1,36 @@
-
 #![allow(dead_code)]
 use serde::{Deserialize, Serialize};
 // use serde_json::Result;
 
+use crate::components::ViewRecipe;
+use crate::fetch::*;
 use log::*;
 use yew::prelude::*;
-use crate::fetch::*;
-use crate::components::ViewRecipe;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Recipe {
-    pub id: i64,
-    pub text: String,
-    pub completed: bool,
+pub struct RecipeListItem {
+    pub id: i32,
+    pub title: String,
+    pub description: String,
 }
 
 pub struct Recipies {
     link: ComponentLink<Self>,
-    markdown: FetchState<Vec<Recipe>>,
+    markdown: FetchState<Vec<RecipeListItem>>,
     // markdown: FetchState<String>,
+    state: PageState,
+}
+
+pub enum PageState {
+    Browsing,
+    Viewing(i32),
 }
 
 pub enum Msg {
-    SetMarkdownFetchState(FetchState<Vec<Recipe>>),
+    SetMarkdownFetchState(FetchState<Vec<RecipeListItem>>),
     // SetMarkdownFetchState(FetchState<String>),
     GetMarkdown,
+    ChangePageState(PageState),
 }
 
 #[derive(Clone, PartialEq, Properties)]
@@ -35,9 +41,11 @@ impl Component for Recipies {
     type Properties = Props;
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+        info!("recipie create!");
         Recipies {
             link,
             markdown: FetchState::NotFetching,
+            state: PageState::Browsing,
         }
     }
 
@@ -46,7 +54,7 @@ impl Component for Recipies {
             Msg::GetMarkdown => {
                 info!("New fetch!");
                 let future = async {
-                    match fetch_url2("http://localhost:3030/todos").await {
+                    match fetch_url2("http://localhost:3030/recipe").await {
                         Ok(md) => Msg::SetMarkdownFetchState(FetchState::Success(md)),
                         Err(err) => Msg::SetMarkdownFetchState(FetchState::Failed(err)),
                     }
@@ -60,58 +68,89 @@ impl Component for Recipies {
                 false
             }
             Msg::SetMarkdownFetchState(fetch_state) => {
-                info!("SEt_fetch!");
-                
+                info!("Set_fetch!");
+
                 if let FetchState::Success(ref val) = fetch_state {
                     info!("Coool! {:?}", val);
                 }
 
                 self.markdown = fetch_state;
-              
+
                 true
-            }
+            },
+            Msg::ChangePageState(new_state) => {
+                self.state = new_state;
+                true
+            },
         }
     }
 
-    // fn change(&mut self, props: Self::Properties) -> ShouldRender {
-    //     self.title = props.title;
-    //     self.onsignal = props.onsignal;
-    //     true
-    // }
+    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+        self.state = PageState::Browsing;
+        true
+    }
 
     fn view(&self) -> Html {
-        info!("View!");
+        info!("recipie view!");
+
         html! {
             <div>
-                { "Recipies!" }
-                <br/>
-                <div>
                 {
-                    match &self.markdown {
-                        FetchState::NotFetching => html! {
-                            <button onclick=self.link.callback(|_| Msg::GetMarkdown)>
-                                {"Get Markdown"}
-                            </button>
-                        },
-                        FetchState::Fetching => html! {"Fetching"},
-                        FetchState::Success(data) => html! {
-                            data.iter().map(|rec| html! {
-                                <div class="columns">
-                                    <div class="column">{rec.id }</div>
-                                    <div class="column">{&rec.text }</div>
-                                    <div class="column">{rec.completed }</div>
-                                </div>
-                            }).collect::<Html>()
-                        }
-                        ,
-                        FetchState::Failed(err) => html! {&err},
+                    match self.state {
+                        PageState::Browsing => html!(      
+                            <div>
+                            {
+                                match &self.markdown {
+                                    FetchState::NotFetching => { 
+                                        self.link.send_message(Msg::GetMarkdown);
+                                        html! {"Fetching"}
+                                    },
+                                    // html! {
+                                    //     <button onclick=self.link.callback(|_| Msg::GetMarkdown)>
+                                    //         {"Get Markdown"}
+                                    //     </button>
+                                    // },
+                                    FetchState::Fetching => html! {"Fetching"},
+                                    FetchState::Success(data) => html! {
+                                        <div>
+                                            <h3 class="pb-3 ">
+                                                { "Pick your poison!" }
+                                            </h3>
+                                            { data.iter().map(|rec| rec.render(&self.link) ).collect::<Html>() }
+                                        </div>
+                                    },
+                                    FetchState::Failed(err) => html! {&err},
+                                }
+                            }
+                            </div>
+                        ),
+                        PageState::Viewing(idd) => html!(  
+                            <div>
+                                <ViewRecipe id=idd />
+                            </div>
+                        ),
                     }
                 }
-                </div>
-                <div>
-                    <ViewRecipe />
-                </div>
             </div>
+        }
+    }
+}
+
+impl RecipeListItem {
+    fn render(&self, link: &ComponentLink<Recipies>,) -> Html {
+        let id = self.id;
+
+        html!{
+            <div class="pb-3">
+                <a href="#" onclick=link.callback(move |_| Msg::ChangePageState(PageState::Viewing(id)))>
+                    <div>
+                        { &self.title }
+                    </div>
+                    <div>
+                        { &self.description }
+                    </div>
+                </a>
+            </div>            
         }
     }
 }

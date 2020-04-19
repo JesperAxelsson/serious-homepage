@@ -98,7 +98,7 @@ impl App {
     fn render_body(&self) -> Html {
         html! {
             <section class="w-full bg-beige flex-grow flex flex-col shadow p-5 ">
-                <h3 class="">
+                <h3 class="text-xl pb-3">
                     {
                         match self.state.page_state {
                             PageState::Home => "Home!",
