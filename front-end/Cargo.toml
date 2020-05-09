@@ -1,7 +1,7 @@
 [package]
 name = "serious-homepage"
 version = "0.1.0"
-authors = ["Justin Starry <justin.starry@icloud.com"]
+authors = ["Jesper Axelsson <jesperaxe@gmail.com!>"]
 edition = "2018"
 
 [lib]
@@ -19,10 +19,10 @@ serde_derive = "1.0.107"
 wasm-bindgen = "0.2.62"
 wasm-bindgen-futures = "0.4.12"
 web_logger = "0.2.0"
-pulldown-cmark = "0.7.1"
+# pulldown-cmark = "0.7.1"
 # pulldown-cmark = {version = "0.7", no-
 
-yew = { version = "0.15.0", features = ["web_sys", "agent", "services", "msgpack"] }
+yew = { version = "0.15.0", features = ["agent", "services", "msgpack"] }
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
