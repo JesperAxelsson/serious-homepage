@@ -55,6 +55,12 @@ impl Component for App {
         true
     }
 
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        // self.title = props.title;
+        // self.onsignal = props.onsignal;
+        true
+    }
+
     fn view(&self) -> Html {
         info!("rendered!");
 

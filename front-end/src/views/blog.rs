@@ -14,6 +14,12 @@ impl Component for Blog {
         true
     }
 
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        // self.title = props.title;
+        // self.onsignal = props.onsignal;
+        true
+    }
+
     fn view(&self) -> Html {
         html! {
             <div class="flex flex-col   overflow-hidden">

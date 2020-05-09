@@ -99,6 +99,11 @@ impl Component for ViewRecipe {
             }
         }
     }
+    
+    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+        // self.state = PageState::Browsing;
+        true
+    }
 
     fn view(&self) -> Html {
         match &self.state {

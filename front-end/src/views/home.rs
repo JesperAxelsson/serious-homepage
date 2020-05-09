@@ -32,11 +32,11 @@ impl Component for Home {
         false
     }
 
-    // fn change(&mut self, props: Self::Properties) -> ShouldRender {
-    //     self.title = props.title;
-    //     self.onsignal = props.onsignal;
-    //     true
-    // }
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        // self.title = props.title;
+        // self.onsignal = props.onsignal;
+        true
+    }
 
     fn view(&self) -> Html {
         html! {
