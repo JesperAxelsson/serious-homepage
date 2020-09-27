@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "0.2.22", features = ["full"] }
+tokio = { version = "0.2.22", features = ["macros"] }
 warp = "0.2.5"
 
 
@@ -21,3 +21,7 @@ log = "0.4.11"
 dotenv = "0.15.0"
 
 sqlx = { version = "0.3.5", default-features = false, features = [ "runtime-tokio", "macros", "postgres" ] }
+
+[build]
+# Speed up linking, does need lld though. Might disable later?
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
