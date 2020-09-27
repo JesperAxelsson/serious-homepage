@@ -32,7 +32,10 @@ async fn main() {
     if env::var_os("RUST_LOG").is_none() {
         // Set `RUST_LOG=todos=debug` to see debug logs,
         // this only shows access logs.
-        env::set_var("RUST_LOG", "todos=info");
+        // env::set_var("RUST_LOG", "todos=info");
+        // env::set_var("RUST_LOG", "images=info");
+        // env::set_var("RUST_LOG", "recipies=info");
+        env::set_var("RUST_LOG", "info");
     }
 
     let db_url = env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'");
