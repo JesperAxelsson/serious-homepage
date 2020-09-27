@@ -77,11 +77,11 @@ impl Component for Recipies {
                 self.markdown = fetch_state;
 
                 true
-            },
+            }
             Msg::ChangePageState(new_state) => {
                 self.state = new_state;
                 true
-            },
+            }
         }
     }
 
@@ -97,19 +97,14 @@ impl Component for Recipies {
             <div>
                 {
                     match self.state {
-                        PageState::Browsing => html!(      
+                        PageState::Browsing => html!(
                             <div>
                             {
                                 match &self.markdown {
-                                    FetchState::NotFetching => { 
+                                    FetchState::NotFetching => {
                                         self.link.send_message(Msg::GetMarkdown);
                                         html! {"Fetching"}
                                     },
-                                    // html! {
-                                    //     <button onclick=self.link.callback(|_| Msg::GetMarkdown)>
-                                    //         {"Get Markdown"}
-                                    //     </button>
-                                    // },
                                     FetchState::Fetching => html! {"Fetching"},
                                     FetchState::Success(data) => html! {
                                         <div>
@@ -124,7 +119,7 @@ impl Component for Recipies {
                             }
                             </div>
                         ),
-                        PageState::Viewing(idd) => html!(  
+                        PageState::Viewing(idd) => html!(
                             <div>
                                 <ViewRecipe id=idd />
                             </div>
@@ -137,10 +132,10 @@ impl Component for Recipies {
 }
 
 impl RecipeListItem {
-    fn render(&self, link: &ComponentLink<Recipies>,) -> Html {
+    fn render(&self, link: &ComponentLink<Recipies>) -> Html {
         let id = self.id;
 
-        html!{
+        html! {
             <div class="pb-3">
                 <a href="#" onclick=link.callback(move |_| Msg::ChangePageState(PageState::Viewing(id)))>
                     <div>
@@ -150,7 +145,7 @@ impl RecipeListItem {
                         { &self.description }
                     </div>
                 </a>
-            </div>            
+            </div>
         }
     }
 }
