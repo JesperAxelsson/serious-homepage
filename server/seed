@@ -1,0 +1,74 @@
+select migration from __migrations order by created
+
+-- Todo
+INSERT INTO public.recipe
+( title, description, "content")
+VALUES('Senap', 'very god', 'text');
+
+INSERT INTO public.recipe
+( title, description, "content")
+VALUES('Banana', 'yellow', 'so much info');
+
+INSERT INTO public.recipe
+( title, description, "content")
+VALUES('Cakes', 'all of em', 'very recipe');
+
+select * from image i 
+
+-- Album
+INSERT INTO public.album
+(title, description, image_url)
+VALUES('Wild west', 'Banana pudding', '');
+
+INSERT INTO public.album
+(title, description, image_url)
+VALUES('Batter Party 1998', '', '');
+
+SELECT * FROM album
+
+-- Images
+INSERT INTO public.image
+(title, description, image_url)
+VALUES('', '', 'fatcat.jpg');
+
+INSERT INTO public.image
+(title, description, image_url)
+VALUES('', '', 'niceview.jpg');
+
+INSERT INTO public.image
+(title, description, image_url)
+VALUES('', '', 'trail.jpg');
+
+INSERT INTO public.image
+(title, description, image_url)
+VALUES('', '', 'stream.jpg');
+
+INSERT INTO public.image
+(title, description, image_url)
+VALUES('', '', 'dishhoe.jpg');
+
+-- Image 2 album
+INSERT INTO public.album2image
+(album_id, image_id)
+VALUES(1, 1);
+
+INSERT INTO public.album2image
+(album_id, image_id)
+VALUES(1, 2);
+
+INSERT INTO public.album2image
+(album_id, image_id)
+VALUES(2, 3);
+
+INSERT INTO public.album2image
+(album_id, image_id)
+VALUES(2, 4);
+
+INSERT INTO public.album2image
+(album_id, image_id)
+VALUES(2, 5);
+
+
+select * from image i 
+inner join album2image ai on i.id = ai.image_id 
+where ai.album_id = 1

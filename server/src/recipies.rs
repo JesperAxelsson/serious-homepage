@@ -18,7 +18,7 @@ pub mod filters {
     pub fn recipe_get(
         pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("recipe" / i32)
+        warp::path!("recipe" / i64)
             .and(warp::get())
             .and(with_pg(pool))
             .and_then(handlers::get_recipe)
@@ -49,7 +49,7 @@ pub mod filters {
     pub fn recipe_update(
         pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("recipe" / i32)
+        warp::path!("recipe" / i64)
             .and(warp::put())
             .and(json_body())
             .and(with_pg(pool))
@@ -63,7 +63,7 @@ pub mod filters {
         // We'll make one of our endpoints admin-only to show how authentication filters are used
         let admin_only = warp::header::exact("authorization", "Bearer admin");
 
-        warp::path!("recipe" / i32)
+        warp::path!("recipe" / i64)
             // It is important to put the auth check _after_ the path filters.
             // If we put the auth check before, the request `PUT /recipies/invalid-string`
             // would try this filter and reject because the authorization header doesn't match,
@@ -97,7 +97,7 @@ pub mod handlers {
     use std::convert::Infallible;
     use warp::http::StatusCode;
 
-    pub async fn get_recipe(id: i32, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
+    pub async fn get_recipe(id: i64, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
         let rec = sqlx::query!(
             "select id, title, description, content from recipe where id = $1",
             id
@@ -166,7 +166,7 @@ pub mod handlers {
     }
 
     pub async fn update_recipe(
-        id: i32,
+        id: i64,
         update: Recipe,
         pool: PgPool,
     ) -> Result<impl warp::Reply, Infallible> {
@@ -197,7 +197,7 @@ pub mod handlers {
         }
     }
 
-    pub async fn delete_recipe(id: i32, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
+    pub async fn delete_recipe(id: i64, pool: PgPool) -> Result<impl warp::Reply, Infallible> {
         log::debug!("delete_recipe: id={}", id);
 
         let rec = sqlx::query!(

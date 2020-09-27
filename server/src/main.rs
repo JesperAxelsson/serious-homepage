@@ -1,18 +1,15 @@
 mod models;
-mod todos;
 mod recipies;
+mod todos;
+mod gallery;
 
 use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
 use warp::{http::Method, Filter};
 
-
-use todos::{
-    // handlers,
-    filters,
-};
-
+use todos::filters;
+// use gallery::filters;
 
 /// Provides a RESTful web server managing some Todos.
 ///
@@ -22,12 +19,12 @@ use todos::{
 /// - `POST /todos`: create a new Todo.
 /// - `PUT /todos/:id`: update a specific Todo.
 /// - `DELETE /todos/:id`: delete a specific Todo.
-/// 
+///
 /// - `GET /recipe`: return a JSON list of Todos.
 /// - `POST /recipe`: create a new Todo.
 /// - `PUT /recipe/:id`: update a specific Todo.
 /// - `DELETE /recipe/:id`: delete a specific Todo.
-/// 
+///
 #[tokio::main]
 async fn main() {
     dotenv().ok();
@@ -42,13 +39,18 @@ async fn main() {
 
     pretty_env_logger::init();
 
+    let download_route = warp::path("images").and(warp::fs::dir("./images/"));
+
     // Postgres
     let pool = PgPool::new(&db_url)
         .await
         .expect("Failed to connect to pool");
 
-    let api = filters::todos(pool.clone()).with(warp::log("todos"))
-        .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")));
+    let api = download_route
+        .with(warp::log("images"))
+        .or(filters::todos(pool.clone()).with(warp::log("todos")))
+        .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
+        .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")));
 
     let cors = warp::cors().allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
 
