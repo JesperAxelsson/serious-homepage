@@ -45,7 +45,7 @@ async fn main() {
     let download_route = warp::path("images").and(warp::fs::dir("./images/"));
 
     // Postgres
-    let pool = PgPool::new(&db_url)
+    let pool = PgPool::connect(&db_url)
         .await
         .expect("Failed to connect to pool");
 

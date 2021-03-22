@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "0.2.22", features = ["macros"] }
-warp = "0.2.5"
+tokio = { version = "1", features = ["full"] }
+warp = "0.3.0"
 
 
 pretty_env_logger = "0.4.0"
@@ -20,7 +20,7 @@ log = "0.4.11"
 
 dotenv = "0.15.0"
 
-sqlx = { version = "0.3.5", default-features = false, features = [ "runtime-tokio", "macros", "postgres" ] }
+sqlx = { version = "0.5", default-features = false, features = [ "runtime-tokio-rustls", "macros", "postgres" ] }
 
 # rusoto_core = {version = "0.45.0", default_features = false, features=["rustls"]}
 # rusoto_s3 =  {version =  "0.45.0", default_features = false, features=["rustls"]}
@@ -28,7 +28,7 @@ sqlx = { version = "0.3.5", default-features = false, features = [ "runtime-toki
 # rusoto_core = "0.45.0"
 # rusoto_s3 = "0.45.0"
 
-rust-s3 = "0.22.12"
+rust-s3 = "0.26"
 
 [build]
 # Speed up linking, does need lld though. Might disable later?

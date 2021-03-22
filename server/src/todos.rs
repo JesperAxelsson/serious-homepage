@@ -189,7 +189,7 @@ pub mod handlers {
         log::debug!("    -> todo id not found!");
 
         // If the for loop didn't return OK, then the ID doesn't exist...
-        if rec == 1 {
+        if rec.rows_affected() == 1 {
             Ok(StatusCode::OK)
         } else {
             Ok(StatusCode::NOT_FOUND)
@@ -210,7 +210,7 @@ pub mod handlers {
         .await
         .expect("Failed to update TODO");
 
-        if rec == 1 {
+        if rec.rows_affected() == 1 {
             // respond with a `204 No Content`, which means successful,
             // yet no body expected...
             Ok(StatusCode::NO_CONTENT)
