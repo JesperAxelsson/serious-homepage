@@ -16,10 +16,11 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 // This is the entry point for the web app
-#[wasm_bindgen]
-pub fn run_app() -> Result<(), JsValue> {
+// #[wasm_bindgen]
+#[wasm_bindgen(start)]
+// pub fn run_app() -> Result<(), JsValue> {
+pub fn run_app()  {
     utils::set_panic_hook();
-    web_logger::init();
+    // web_logger::init();
     yew::start_app::<app::App>();
-    Ok(())
 }

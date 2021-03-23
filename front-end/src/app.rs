@@ -41,7 +41,7 @@ impl Component for App {
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         let state = State {
-            page_state: PageState::Blog,
+            page_state: PageState::Gallery,
             // page_state: PageState::Home,
         };
         App { link, state }
@@ -56,8 +56,6 @@ impl Component for App {
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // self.title = props.title;
-        // self.onsignal = props.onsignal;
         true
     }
 
@@ -76,7 +74,7 @@ impl Component for App {
                     // </p>
                 </div>
             </header>
-            <div class="flex flex-col sm:flex-row flex-1 overflow-hidden">
+            <div class="flex flex-col sm:flex-row flex-1 overflow-hidden h-full">
                 <div class="w-auto flex-grow-0 sm:flex-grow-1 ">
                     <div class="shadow flex flex-col h-full flex-1 justify-between max-h-full">
                         <div class="px-2 sm:px-0 sm:py-3 flex sm:flex-grow-1 flex-1 sm:flex-col" >
@@ -91,7 +89,7 @@ impl Component for App {
                         </div>
                    </div>
                 </div>
-                <div class="bg-darkgreen w-full px-4 pt-4 sm:px-6 sm:pt-6 flex flex-1">
+                <div class="bg-darkgreen w-full h-full px-4 pt-4 sm:px-6 sm:pt-6 flex flex-1">
                     { self.render_body() }
                 </div>
             </div>
@@ -103,7 +101,7 @@ impl Component for App {
 impl App {
     fn render_body(&self) -> Html {
         html! {
-            <section class="w-full bg-beige flex-grow flex flex-col shadow p-5 ">
+            <section class="w-full bg-beige flex-grow flex flex-col shadow p-5 h-full">
                 <h3 class="text-xl pb-3">
                     {
                         match self.state.page_state {

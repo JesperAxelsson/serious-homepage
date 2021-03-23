@@ -22,7 +22,7 @@ impl Component for Blog {
 
     fn view(&self) -> Html {
         html! {
-            <div class="flex flex-col   overflow-hidden">
+            <div class="flex flex-col overflow-hidden">
                 <h2 class="flex-shrink-0">{ "Everyone needs a blog right?" }</h2>
                 <div class="flex-1 overflow-y-auto">
                         <p>

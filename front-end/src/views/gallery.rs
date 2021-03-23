@@ -170,6 +170,7 @@ impl Component for Gallery {
                     </div>
                 </div>
             },
+            
             PageState::Images(id) => html! {
                 <div class="flex flex-col overflow-hidden h-full p-3">
                     <div class="flex-1 overflow-y-auto">

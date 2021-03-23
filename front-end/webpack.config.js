@@ -2,13 +2,17 @@ const path = require('path');
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-// const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 // const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const distPath = path.resolve(__dirname, "dist");
 module.exports = (env, argv) => {
   return {
+    experiments: {
+      asyncWebAssembly: true,
+    },
     entry: './bootstrap.js',
+    devtool: 'eval-source-map',
     devServer: {
       contentBase: distPath,
       compress: argv.mode === 'production',
@@ -45,9 +49,10 @@ module.exports = (env, argv) => {
         template: "src/index.html",
         filename: "index.html"
       }),
-      new CopyWebpackPlugin([
+      new CopyWebpackPlugin({
+        patterns:[
         { from: './static', to: distPath }
-      ]),
+      ]}),
       new WasmPackPlugin({
         crateDirectory: ".",
         extraArgs: "--no-typescript",

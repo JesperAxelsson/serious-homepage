@@ -9,13 +9,13 @@ pub fn set_panic_hook() {
     console_error_panic_hook::set_once();
 }
 
-use yew::virtual_dom::VNode;
 use yew::html::Html;
+use yew::virtual_dom::VNode;
 
 pub fn render_text_as_html(html: &str) -> Html {
     use web_sys::Node;
 
-    let js_svg = {
+    let element = {
         let div = web_sys::window()
             .unwrap()
             .document()
@@ -26,10 +26,10 @@ pub fn render_text_as_html(html: &str) -> Html {
         div
     };
 
-    let node = Node::from(js_svg);
-    use web_sys::{console};
+    let node = Node::from(element);
 
-   console::log_1(&node);
+    // use web_sys::console;
+    // console::log_1(&node);
 
     VNode::VRef(node)
 }
