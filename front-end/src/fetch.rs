@@ -52,6 +52,7 @@ impl From<JsValue> for FetchError {
 }
 
 /// The possible states a fetch request can be in.
+#[derive( Debug)]
 pub enum FetchState<T> {
     NotFetching,
     Fetching,

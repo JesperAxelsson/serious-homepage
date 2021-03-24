@@ -8,6 +8,7 @@ mod components;
 mod markdown;
 
 use wasm_bindgen::prelude::*;
+pub use yew::services::console::ConsoleService;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.

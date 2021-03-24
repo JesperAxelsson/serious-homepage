@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::fetch::*;
-use yew::prelude::*;
+use yew::{prelude::*, services::ConsoleService};
 
 use log::*;
 
@@ -32,12 +32,14 @@ pub struct Image {
     pub preview_url: String,
 }
 
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum PageState {
     Albums,
     Images(i64),
     ShowImage(i64),
 }
 
+#[derive(Debug)]
 pub enum Msg {
     FetchAlbum(FetchState<Vec<Album>>),
     StartFetchAlbum,
@@ -66,6 +68,7 @@ impl Component for Gallery {
         match msg {
             Msg::StartFetchAlbum => {
                 info!("New fetch album!");
+                self.images = FetchState::NotFetching;
                 let future = async {
                     match fetch_url2("http://localhost:3030/album").await {
                         Ok(md) => Msg::FetchAlbum(FetchState::Success(md)),
@@ -94,6 +97,8 @@ impl Component for Gallery {
 
             Msg::StartFetchImages(album_id) => {
                 info!("New fetch images!");
+                ConsoleService::log(&format!("Fetching album images: {:?}", album_id));
+
                 let future = async move {
                     match fetch_url2(&format!("http://localhost:3030/album/{}", album_id)).await {
                         Ok(md) => Msg::FetchImages(FetchState::Success(md)),
@@ -120,6 +125,7 @@ impl Component for Gallery {
                 true
             }
             Msg::ChangePageState(new_state) => {
+                ConsoleService::log(&format!("New page state: {:?}", new_state));
                 self.state = new_state;
                 true
             }
@@ -127,9 +133,9 @@ impl Component for Gallery {
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // self.title = props.title;
-        // self.onsignal = props.onsignal;
         self.state = PageState::Albums;
+        self.images = FetchState::NotFetching;
+        ConsoleService::log("Changing");
         true
     }
 
@@ -170,7 +176,7 @@ impl Component for Gallery {
                     </div>
                 </div>
             },
-            
+
             PageState::Images(id) => html! {
                 <div class="flex flex-col overflow-hidden h-full p-3">
                     <div class="flex-1 overflow-y-auto">

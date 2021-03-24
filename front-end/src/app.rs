@@ -10,6 +10,8 @@ use crate::views::Home;
 use crate::views::Recipies;
 use crate::views::Todo;
 
+pub use yew::services::console::ConsoleService;
+
 pub struct App {
     link: ComponentLink<Self>,
     state: State,
