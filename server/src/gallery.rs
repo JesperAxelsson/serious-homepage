@@ -1,6 +1,6 @@
 pub mod filters {
     use super::handlers;
-    use crate::models::{Album, ListOptions, Todo};
+    use crate::models::Album;
     use sqlx::PgPool;
     use warp::Filter;
 
@@ -9,7 +9,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         get_album_images(pool.clone())
             .or(album_list(pool.clone()))
-            .or(gallery_create(pool.clone()))
+            .or(album_create(pool.clone()))
     }
 
     /// GET /album/<id>
@@ -32,11 +32,11 @@ pub mod filters {
             .and_then(handlers::list_album)
     }
 
-    /// POST /gallery with JSON body
-    pub fn gallery_create(
+    /// POST /album with JSON body
+    pub fn album_create(
         pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("gallery")
+        warp::path!("album")
             .and(warp::post())
             .and(json_album())
             .and(with_pg(pool))
@@ -62,6 +62,7 @@ pub mod filters {
 /// No tuples are needed, it's auto flattened for the functions.
 mod handlers {
     use crate::models::{Album, Image};
+    use log::info;
     use sqlx::PgPool;
     use std::convert::Infallible;
     use warp::http::StatusCode;

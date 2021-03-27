@@ -1,7 +1,7 @@
+mod gallery;
 mod models;
 mod recipies;
 mod todos;
-mod gallery;
 
 use dotenv::dotenv;
 use sqlx::PgPool;
@@ -55,7 +55,10 @@ async fn main() {
         .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
         .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")));
 
-    let cors = warp::cors().allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
+    let cors = warp::cors()
+        .allow_any_origin()
+        .allow_headers(vec!["*"])
+        .allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
 
     // View access logs by setting `RUST_LOG=todos`.
     let routes = api.with(cors);
