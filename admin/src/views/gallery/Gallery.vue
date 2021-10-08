@@ -1,20 +1,44 @@
 <template>
-  <div class="Gallery">
-    <p>
-      Gallery and stuff
-    </p>
-    
+  <div class="home">
+    <p>Gallery dude!</p>
+    <b-container class="d-flex flex-row flex-wrap">
+      <!-- <div class="d-flex flex-row"> -->
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+          <gallery-card/>
+      <!-- </div> -->
+    </b-container>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-// import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import { Component, Vue } from "vue-property-decorator";
+import GalleryCard from './components/GalleryCard.vue'
 
-export default defineComponent({
-  name: 'Gallery',
-  // components: {
-  //   HelloWorld,
-  // },
-});
+@Component({
+  components: {
+    GalleryCard,
+  },
+})
+export default class Gallery extends Vue {}
 </script>

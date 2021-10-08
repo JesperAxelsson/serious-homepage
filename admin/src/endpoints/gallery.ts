@@ -1,7 +1,0 @@
-
-
-class gallery {
-    getAll() {
-
-    }
-}
