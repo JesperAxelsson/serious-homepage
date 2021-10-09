@@ -225,7 +225,7 @@ impl Component for Gallery {
                         <div class="flex-1 overflow-y-auto">
                             <div class="flex flex-wrap overflow-y-visible  justify-between">
                                 <div class="shadow-xl bg-darkgreen mr-2 mb-4 pb-1 " >
-                                    <img src=&url class="p-1  "/>
+                                    <img src=url.clone() class="p-1  "/>
 
                                     <div class="text-sm text-beige-lighter font-medium text-center">
                                         {{ &image.title }}
@@ -255,7 +255,7 @@ fn render_album_card(album: &Album, link: &ComponentLink<Gallery>) -> Html {
 
         <div class="shadow-xl bg-darkgreen h-40 w-32 mr-2 mb-4 pb-1 flex-none"
              onclick=link.callback(move |_| Msg::ChangePageState(PageState::Images(id)))>
-            <img src=&url class="p-1 h-32"/>
+            <img src=url.clone() class="p-1 h-32"/>
 
             <div class="text-sm text-beige-lighter font-medium text-center">
                 {{ &album.title }}
@@ -275,15 +275,15 @@ fn render_empty_card() -> Html {
 fn render_image_card(image: &Image, link: &ComponentLink<Gallery>) -> Html {
     let id = image.id;
     let url = format!(" http://localhost:3030/images/{}", image.image_url);
+    let title = image.title.clone();
 
     html! {
-
         <div class="shadow-xl bg-darkgreen h-40 w-32 mr-2 mb-4 pb-1 flex-none"
              onclick=link.callback(move |_| Msg::ChangePageState(PageState::ShowImage(id)))>
-            <img src=&url class="p-1 h-32"/>
+            <img src=url.clone() class="p-1 h-32"/>
 
             <div class="text-sm text-beige-lighter font-medium text-center">
-                {{ &image.title }}
+                {{ title }}
             </div>
         </div>
     }

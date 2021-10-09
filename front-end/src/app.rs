@@ -129,6 +129,8 @@ impl App {
     }
 
     fn render_link(&self, page_state: PageState, title: &str) -> Html {
+        let title = title.to_string();
+        
         let link_class = if self.state.page_state == page_state {
             "py-1 pl-2 shadow bg-darkgreen text-beige-lighter font-medium "
         } else {
@@ -137,7 +139,7 @@ impl App {
 
         html! {
             <a class="sm:pl-4 cursor-pointer sm:mb-2" onclick=self.link.callback(move |_| Msg::ChangePageState(page_state)) >
-                <div class={link_class}><div class="text-sm pr-1 sm:pr-4 tracking-wider font-semibold " title={title} > {title} </div></div>
+                <div class={link_class}><div class="text-sm pr-1 sm:pr-4 tracking-wider font-semibold " title={title.clone()} > {title} </div></div>
             </a>
         }
     }
