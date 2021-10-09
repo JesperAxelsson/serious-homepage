@@ -61,8 +61,9 @@ async fn main() {
         // .allow_origin("*")
         .allow_origin("http://localhost:8080/")
         .allow_origin("http://localhost:3030/")
+        .allow_credentials(true)
         .allow_any_origin()
-        .allow_headers(vec!["content-type", "content-length"])
+        .allow_headers(vec!["origin", "date", "content-type", "content-length", "access-control-allow-origin"])
         .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
 
     // View access logs by setting `RUST_LOG=todos`.

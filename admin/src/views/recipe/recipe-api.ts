@@ -2,7 +2,7 @@ import { createAxios } from '@/endpoint'
 import { Axios, AxiosResponse } from 'axios';
 
 
-export default interface IRecipe {
+export interface IRecipe {
     id: number;
     title: string;
     description: string;
@@ -22,8 +22,6 @@ export default class RecipeApi {
         return response.data
     }
 
-    // saveRecipe() { }
-
     public async update(recipe: IRecipe): Promise<AxiosResponse<IRecipe>> {
         const resp = await this.axios.put('recipe', recipe);
         console.log("Seving recipe", recipe, resp)
@@ -32,6 +30,11 @@ export default class RecipeApi {
 
     public async create(recipe: IRecipe): Promise<AxiosResponse<IRecipe>> {
         const resp = await this.axios.post('recipe', recipe);
+        return resp;
+    }
+
+    public async delete(recipe: IRecipe): Promise<AxiosResponse<IRecipe>> {
+        const resp = await this.axios.delete('recipe/' + recipe.id);
         return resp;
     }
 }

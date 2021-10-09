@@ -61,14 +61,14 @@ pub mod filters {
         pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         // We'll make one of our endpoints admin-only to show how authentication filters are used
-        let admin_only = warp::header::exact("authorization", "Bearer admin");
+        // let admin_only = warp::header::exact("authorization", "Bearer admin");
 
         warp::path!("recipe" / i64)
             // It is important to put the auth check _after_ the path filters.
             // If we put the auth check before, the request `PUT /recipies/invalid-string`
             // would try this filter and reject because the authorization header doesn't match,
             // rather because the param is wrong for that other path.
-            .and(admin_only)
+            // .and(admin_only)
             .and(warp::delete())
             .and(with_pg(pool))
             .and_then(handlers::delete_recipe)
