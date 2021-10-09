@@ -1,6 +1,6 @@
 pub mod filters {
     use super::handlers;
-    use crate::models::Recipe;
+    use crate::models::{CreateRecipe, Recipe};
     use sqlx::PgPool;
     use warp::Filter;
 
@@ -40,7 +40,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("recipe")
             .and(warp::post())
-            .and(json_body())
+            .and(json_create_body())
             .and(with_pg(pool))
             .and_then(handlers::create_recipe)
     }
@@ -49,7 +49,7 @@ pub mod filters {
     pub fn recipe_update(
         pool: PgPool,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("recipe" / i64)
+        warp::path!("recipe")
             .and(warp::put())
             .and(json_body())
             .and(with_pg(pool))
@@ -85,6 +85,12 @@ pub mod filters {
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
     }
+
+    fn json_create_body() -> impl Filter<Extract = (CreateRecipe,), Error = warp::Rejection> + Clone {
+        // When accepting a body, we want a JSON body
+        // (and to reject huge payloads)...
+        warp::body::content_length_limit(1024 * 16).and(warp::body::json())
+    }
 }
 
 /// These are our API handlers, the ends of each filter chain.
@@ -92,7 +98,7 @@ pub mod filters {
 /// with the exact arguments we'd expect from each filter in the chain.
 /// No tuples are needed, it's auto flattened for the functions.
 pub mod handlers {
-    use crate::models::{Recipe, RecipeListItem};
+    use crate::models::{CreateRecipe, Recipe};
     use sqlx::PgPool;
     use std::convert::Infallible;
     use warp::http::StatusCode;
@@ -127,23 +133,25 @@ pub mod handlers {
     }
 
     pub async fn list_recipies(pool: PgPool) -> Result<impl warp::Reply, Infallible> {
-        let recipies = sqlx::query!("select id, title, description from recipe order by id")
-            .fetch_all(&pool)
-            .await
-            .expect("Failed to execute list_recipies query")
-            .into_iter()
-            .map(|row| RecipeListItem {
-                id: row.id,
-                title: row.title,
-                description: row.description,
-            })
-            .collect::<Vec<_>>();
+        let recipies =
+            sqlx::query!("select id, title, description, content from recipe order by id")
+                .fetch_all(&pool)
+                .await
+                .expect("Failed to execute list_recipies query")
+                .into_iter()
+                .map(|row| Recipe {
+                    id: row.id,
+                    title: row.title,
+                    description: row.description,
+                    content: row.content,
+                })
+                .collect::<Vec<_>>();
 
         Ok(warp::reply::json(&recipies))
     }
 
     pub async fn create_recipe(
-        create: Recipe,
+        create: CreateRecipe,
         pool: PgPool,
     ) -> Result<impl warp::Reply, Infallible> {
         log::debug!("create_recipe: {:?}", create);
@@ -166,11 +174,11 @@ pub mod handlers {
     }
 
     pub async fn update_recipe(
-        id: i64,
+        // id: i64,
         update: Recipe,
         pool: PgPool,
     ) -> Result<impl warp::Reply, Infallible> {
-        log::debug!("update_recipe: id={}, recipe={:?}", id, update);
+        log::debug!("update_recipe: id={}, recipe={:?}", update.id, update);
 
         let rec = sqlx::query!(
             r#"

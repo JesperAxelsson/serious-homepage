@@ -13,7 +13,7 @@ const routes: Array<RouteConfig> = [
   {
     path: '/recipe',
     name: 'Recipe',
-    component: () => import(/* webpackChunkName: "recipe" */ '../views/recipe/Recipe.vue')
+    component: () => import(/* webpackChunkName: "recipe" */ '../views/recipe/RecipeBase.vue')
   },
   {
     path: '/gallery',

@@ -1,27 +1,29 @@
 <template>
-  <div class="home">
-    <p>Title: {{ recipe.Title }}</p>
-    <p>Description: {{ recipe.description }}</p>
-    <div style="max-width: 500px; max-height: 500px;">
-      <vue-editor v-model="content" style="max-width: 500px; max-height: 500px;"/>
-    </div>
-  </div>
+  <b-card
+    :title="recipe.title"
+    :sub-title="recipe.description"
+    style="max-width: 20rem"
+  >
+    <b-button variant="primary" @click="onClick">Edit</b-button>
+  </b-card>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Prop } from "vue-property-decorator";
 import { VueEditor } from "vue2-editor";
-import IRecipe from "./../recipeApi";
+import IRecipe from "./../recipe-api";
 
 @Component({
   components: {
     VueEditor,
   },
-  props: {
-    recipe: Object as () => IRecipe,
-  },
 })
 export default class RecipeCard extends Vue {
-  content=""
+  @Prop(Object) readonly recipe: IRecipe | undefined;
+
+  onClick() : void {
+    console.log("Event Edit:", this.recipe);
+    this.$emit("edit", this.recipe);
+  }
 }
 </script>

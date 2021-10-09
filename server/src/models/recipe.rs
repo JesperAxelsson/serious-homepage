@@ -9,8 +9,15 @@ pub struct Recipe {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RecipeListItem {
-    pub id: i64,
+pub struct CreateRecipe {
     pub title: String,
     pub description: String,
+    pub content: String,
 }
+
+// #[derive(Debug, Deserialize, Serialize, Clone)]
+// pub struct RecipeListItem {
+//     pub id: i64,
+//     pub title: String,
+//     pub description: String,
+// }

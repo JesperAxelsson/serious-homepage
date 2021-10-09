@@ -1,11 +1,11 @@
-mod image;
 mod album;
-mod todo;
-mod recipe;
+mod image;
 mod list_options;
+mod recipe;
+mod todo;
 
-pub use image::Image;
 pub use album::Album;
-pub use todo::Todo;
-pub use recipe::{Recipe, RecipeListItem};
+pub use image::Image;
 pub use list_options::ListOptions;
+pub use recipe::{CreateRecipe, Recipe};
+pub use todo::Todo;

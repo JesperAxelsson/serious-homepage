@@ -62,7 +62,6 @@ pub mod filters {
 /// No tuples are needed, it's auto flattened for the functions.
 mod handlers {
     use crate::models::{Album, Image};
-    use log::info;
     use sqlx::PgPool;
     use std::convert::Infallible;
     use warp::http::StatusCode;

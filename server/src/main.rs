@@ -1,3 +1,4 @@
+mod file;
 mod gallery;
 mod models;
 mod recipies;
@@ -50,15 +51,19 @@ async fn main() {
         .expect("Failed to connect to pool");
 
     let api = download_route
-        .with(warp::log("images"))
+        // .with(warp::log("images"))
         .or(filters::todos(pool.clone()).with(warp::log("todos")))
         .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
-        .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")));
+        .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")))
+        .or(file::filters::filter(pool.clone()).with(warp::log("file")));
 
     let cors = warp::cors()
+        // .allow_origin("*")
+        .allow_origin("http://localhost:8080/")
+        .allow_origin("http://localhost:3030/")
         .allow_any_origin()
-        .allow_headers(vec!["*"])
-        .allow_methods(&[Method::GET, Method::POST, Method::DELETE]);
+        .allow_headers(vec!["content-type", "content-length"])
+        .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
 
     // View access logs by setting `RUST_LOG=todos`.
     let routes = api.with(cors);
