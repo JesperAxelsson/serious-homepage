@@ -1,5 +1,8 @@
+mod auth;
+mod error;
 mod file;
 mod gallery;
+mod login;
 mod models;
 mod recipies;
 mod todos;
@@ -55,7 +58,9 @@ async fn main() {
         .or(filters::todos(pool.clone()).with(warp::log("todos")))
         .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
         .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")))
-        .or(file::filters::filter(pool.clone()).with(warp::log("file")));
+        .or(file::filters::filter(pool.clone()).with(warp::log("file")))
+        .or(login::filters::login_routes(pool.clone()).with(warp::log("login")))
+        .recover(error::handle_rejection);
 
     let cors = warp::cors()
         // .allow_origin("*")
@@ -63,7 +68,13 @@ async fn main() {
         .allow_origin("http://localhost:3030/")
         .allow_credentials(true)
         .allow_any_origin()
-        .allow_headers(vec!["origin", "date", "content-type", "content-length", "access-control-allow-origin"])
+        .allow_headers(vec![
+            "origin",
+            "date",
+            "content-type",
+            "content-length",
+            "access-control-allow-origin",
+        ])
         .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
 
     // View access logs by setting `RUST_LOG=todos`.

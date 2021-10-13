@@ -1,8 +1,21 @@
 pub mod filters {
     use super::handlers;
-    use crate::models::{CreateRecipe, Recipe};
+    use crate::{
+        auth::{with_auth, Role},
+        models::{CreateRecipe, Recipe},
+    };
     use sqlx::PgPool;
     use warp::Filter;
+
+    // pub fn logout(
+    //     pool: PgPool,
+    // ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    //     warp::path!("logout")
+    //         .and(warp::post())
+    //         .and(with_auth(Role::Admin))
+    //         .and(with_pg(pool))
+    //         .and_then(handlers::logout)
+    // }
 
     /// The 4 recipes filters combined.
     pub fn recipies(
@@ -20,6 +33,7 @@ pub mod filters {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("recipe" / i64)
             .and(warp::get())
+            // .and(with_auth(Role::Admin))
             .and(with_pg(pool))
             .and_then(handlers::get_recipe)
     }
@@ -86,7 +100,8 @@ pub mod filters {
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
     }
 
-    fn json_create_body() -> impl Filter<Extract = (CreateRecipe,), Error = warp::Rejection> + Clone {
+    fn json_create_body() -> impl Filter<Extract = (CreateRecipe,), Error = warp::Rejection> + Clone
+    {
         // When accepting a body, we want a JSON body
         // (and to reject huge payloads)...
         warp::body::content_length_limit(1024 * 16).and(warp::body::json())
