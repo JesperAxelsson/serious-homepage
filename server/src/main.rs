@@ -15,6 +15,8 @@ use warp::{http::Method, Filter};
 use todos::filters;
 // use gallery::filters;
 
+// TODO: Use salt and only store hashed passwords!
+
 /// Provides a RESTful web server managing some Todos.
 ///
 /// API will be:
