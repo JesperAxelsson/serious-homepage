@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { IRecipe } from './models/recipe';
 
 import 'react-quill/dist/quill.snow.css';
@@ -13,7 +13,10 @@ import { EditRecipe, CreateRecipe } from './EditRecipe';
 
 const { Content, Sider } = Layout;
 
-function loadRecipiesFunc(setIsLoaded: any, setRecipies: any, setError: any): () => void {
+function loadRecipiesFunc(
+    setIsLoaded: Dispatch<SetStateAction<boolean>>,
+    setRecipies: Dispatch<SetStateAction<IRecipe[]>>,
+    setError: Dispatch<SetStateAction<any>>): () => void {
 
     return () => {
         fetch('http://localhost:3030/recipe')
@@ -76,7 +79,6 @@ function Recipe() {
                     </Routes>
 
                     <Outlet />
-
 
                 </Content>
             </Layout>
