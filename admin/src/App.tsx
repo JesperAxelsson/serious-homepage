@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu } from 'antd';
+import { Layout, Menu } from 'antd';
 
-import { BrowserRouter as Router, Route, Link, Routes, Outlet, NavLink } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Outlet, NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import _ from "lodash";
@@ -16,7 +14,7 @@ import Recipe from './recipe/Recipe'
 import Gallery from './gallery/gallery'
 import Title from 'antd/lib/typography/Title';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 
 interface IMenuItem {

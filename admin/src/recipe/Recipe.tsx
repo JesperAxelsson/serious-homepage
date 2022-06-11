@@ -66,11 +66,9 @@ function Recipe() {
 
                 <Content style={{ padding: '0 10px' }}>
                     <Routes>
-                        {/* <Route path="" element={<ContentWrapper recipe={recipies[0]} />}> */}
                         <Route path=":id" element={<EditRecipe recipies={recipies} />} />
                         <Route path="create" element={<CreateRecipe />} />
                         <Route path="*" element={<div>Invalid route </div>} />
-                        {/* </Route> */}
                     </Routes>
 
                     <Outlet />

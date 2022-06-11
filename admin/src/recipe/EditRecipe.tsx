@@ -67,13 +67,11 @@ function InternalRecipe(param_recipe: IRecipe) {
         <div >
             <Row >
                 <Col span={23}>
-                    {/* <Divider orientation='left' > */}
                     <Title level={3}>
                         {
                             createNew ? 'Create' : 'Edit ' + param_recipe.title
                         }
                     </Title>
-                    {/* </Divider> */}
                 </Col>
                 <Col span={1}>
                     {
