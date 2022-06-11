@@ -6,6 +6,10 @@ import { Layout, Menu } from 'antd';
 import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { EditRecipe, CreateRecipe } from './EditRecipe';
 
+/// Todo:
+/// - Reload menu when recipe edited or created
+/// - Clean up layout of buttons
+/// - Make it responsive
 
 const { Content, Sider } = Layout;
 
