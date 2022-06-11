@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-function Recipe() {
+function Blog() {
     return (
         <div>
-            Recipe creator
+            Might write blogs here?
         </div>
     )
 }
 
-export default Recipe;
+export default Blog;

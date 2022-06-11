@@ -12,25 +12,37 @@ import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 
 import Blog from './blog/blog'
-import Recipe from './recipe/recipe'
+import Recipe from './recipe/Recipe'
 import Gallery from './gallery/gallery'
+import Title from 'antd/lib/typography/Title';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const menuItems = [
-  { label: 'Gallery', key: '/gallery', link: '/gallery' },
-  { label: 'Recipe', key: '/recipe', link: '/recipe' },
-  { label: 'Blog', key: '/blog', link: '/blog' },
+
+interface IMenuItem {
+  label: string,
+  key: string,
+  link: string,
+}
+
+const menuItems: IMenuItem[] = [
+  { label: 'Gallery', key: 'gallery', link: '/gallery' },
+  { label: 'Recipe', key: 'recipe', link: '/recipe' },
+  { label: 'Blog', key: 'blog', link: '/blog' },
 ];
 
+function getMenuItem(key: string): IMenuItem | undefined {
+  return _.find(menuItems, { key: key });
+}
+
 interface IContentProps {
-  title: String,
+  title: string,
 }
 
 function ContentWrapper(props: IContentProps) {
   return (
     <div>
-      <h1>{props.title}</h1>
+      <Title level={2}>{props.title}</Title>
 
       <Outlet />
     </div>
@@ -50,19 +62,19 @@ function App() {
           theme="dark"
           mode="inline"
           defaultSelectedKeys={[menu]}
-          onClick={props => { setMenu(props.key); navigate(props.key) }}
+          onClick={props => { setMenu(props.key); navigate(getMenuItem(props.key)?.link ?? '/notfound') }}
           items={menuItems}
         />
       </Sider>
 
-      <Content style={{ padding: '0 50px' }}>
+      <Content style={{ padding: '0 30px' }}>
         <Layout className="site-layout-background" style={{ padding: '24px 0' }}>
 
-          <Content style={{ padding: '0 24px', minHeight: 280 }}>
+          <Content >
             <Routes>
-              <Route path="/" element={<ContentWrapper title={_.find(menuItems, { key: menu })?.label ?? ''} />}>
+              <Route path="/" element={<ContentWrapper title={getMenuItem(menu)?.label ?? ''} />}>
                 <Route path="/blog" element={<Blog />} />
-                <Route path="/recipe" element={<Recipe />} />
+                <Route path="/recipe/*" element={<Recipe />} />
                 <Route path="/gallery" element={<Gallery />} />
               </Route>
             </Routes>
