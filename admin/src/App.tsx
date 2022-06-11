@@ -6,7 +6,7 @@ import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/
 import type { MenuProps } from 'antd';
 import { Breadcrumb, Layout, Menu } from 'antd';
 
-import { BrowserRouter as Router, Route, Link, Routes, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, Routes, Outlet, NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import _ from "lodash";
@@ -58,13 +58,25 @@ function App() {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
         <div className="logo" />
-        <Menu
+        {/* <Menu
           theme="dark"
           mode="inline"
           defaultSelectedKeys={[menu]}
           onClick={props => { setMenu(props.key); navigate(getMenuItem(props.key)?.link ?? '/notfound') }}
           items={menuItems}
-        />
+        /> */}
+
+        <Menu theme="dark"
+          mode="inline"
+          defaultSelectedKeys={[menu]}
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key}>
+              <NavLink to={item.link}> {item.label} </NavLink>
+            </Menu.Item>
+          ))}
+
+        </Menu>
       </Sider>
 
       <Content style={{ padding: '0 30px' }}>

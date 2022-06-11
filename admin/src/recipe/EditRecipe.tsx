@@ -1,65 +1,67 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import IRecipe from './models/recipe';
+import { useEffect, useReducer, useState } from 'react';
+import { IRecipe, RecipeAction, recipeReducer } from './models/recipe';
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Col, Layout, Menu, Row, Input, Divider, Affix, Button } from 'antd';
-import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
+import { Col, Row, Input, Button } from 'antd';
+import { useParams } from 'react-router-dom';
 import _ from 'lodash';
 import Title from 'antd/lib/typography/Title';
+import ICreateRecipe from './models/createRecipe';
 
-
-const { Header, Content, Sider } = Layout;
-
-enum RecipeAction {
-    title,
-    description,
-    content,
-}
-interface IRecipeReducerAction {
-    type: RecipeAction,
-    value: string,
-}
-
-function recipeReducer(state: IRecipe, action: IRecipeReducerAction): IRecipe {
-    switch (action.type) {
-        case RecipeAction.title:
-            return { ...state, title: action.value }
-        case RecipeAction.description:
-            return { ...state, description: action.value }
-        case RecipeAction.content:
-            return { ...state, content: action.value }
-        default:
-            throw new Error();
-    }
-}
 
 interface IContentProps {
-    recipe: IRecipe,
+    recipies: IRecipe[],
 }
 
-function EditRecipe(props: IContentProps | undefined = undefined) {
-    const recipe = props?.recipe ?? {
+
+
+function CreateRecipe() {
+    const [recipe, setRecipe] = useState({
         id: -1,
         title: "",
         description: '',
         content: '',
-    }
+    } as IRecipe);
 
-    const createNew = props?.recipe === undefined;
+    return InternalRecipe(recipe);
+}
 
-    const [state, dispatch] = useReducer(recipeReducer, recipe);
-    // const [title, setTitle] = useState(recipe.title);
-    // const [description, setDescription] = useState(recipe.description);
-    // const [content, setContent] = useState(recipe.content);
 
-    // useEffect(() => {
-    //     setTitle(recipe.title)
-    //     setDescription(recipe.description)
-    //     setContent(recipe.content)
-    // }
-    //     , []);
-    console.log("Props", props, state.title, recipe)
+function EditRecipe(props: IContentProps) {
+    const recipeParams: any = useParams();
+    const [recipe, setRecipe] = useState({
+        id: -1,
+        title: "",
+        description: '',
+        content: '',
+    } as IRecipe);
+
+    useEffect(() => {
+        let rec = _.find(props.recipies, { id: Number(recipeParams.id) })
+            ?? _.first(props.recipies)
+            ?? {
+            id: -1,
+            title: "",
+            description: '',
+            content: '',
+        };
+
+        setRecipe(rec as IRecipe);
+
+    }, [recipeParams]);
+
+    return InternalRecipe(recipe);
+}
+
+function InternalRecipe(param_recipe: IRecipe) {
+    const createNew = param_recipe.id < 0;
+
+    const [state, dispatch] = useReducer(recipeReducer, param_recipe);
+
+    useEffect(() => {
+        dispatch({ type: RecipeAction.Reset, value: param_recipe })
+    }, [param_recipe]);
 
     return (
         <div >
@@ -68,7 +70,7 @@ function EditRecipe(props: IContentProps | undefined = undefined) {
                     {/* <Divider orientation='left' > */}
                     <Title level={3}>
                         {
-                            createNew ? 'CreateNew' : 'Edit ' + props.recipe.title
+                            createNew ? 'Create' : 'Edit ' + param_recipe.title
                         }
                     </Title>
                     {/* </Divider> */}
@@ -76,12 +78,17 @@ function EditRecipe(props: IContentProps | undefined = undefined) {
                 <Col span={1}>
                     {
                         createNew ?
-                            <Button type="primary">
+                            <Button type="primary" onClick={() => createRecipe(state)}>
                                 Create
                             </Button> :
-                            <Button type="primary" onClick={() => saveRecipe(state)}>
-                                Save
-                            </Button>
+                            <div>
+                                <Button type="primary" onClick={() => deleteRecipe(state)}>
+                                    Delete
+                                </Button>
+                                <Button type="primary" onClick={() => saveRecipe(state)}>
+                                    Save
+                                </Button>
+                            </div>
                     }
 
                 </Col>
@@ -93,9 +100,9 @@ function EditRecipe(props: IContentProps | undefined = undefined) {
                 </Col>
 
                 <Col span={12} >
-                    <Input placeholder="Title" value={state.title} onChange={(e) => dispatch({ type: RecipeAction.title, value: e.target.value })} />
-                    <Input placeholder="Description" value={state.description} onChange={(e) => dispatch({ type: RecipeAction.description, value: e.target.value })} />
-                    <ReactQuill theme='snow' value={state.content} onChange={value => dispatch({ type: RecipeAction.content, value: value })} />
+                    <Input placeholder="Title" value={state.title} onChange={(e) => dispatch({ type: RecipeAction.Title, value: e.target.value })} />
+                    <Input placeholder="Description" value={state.description} onChange={(e) => dispatch({ type: RecipeAction.Description, value: e.target.value })} />
+                    <ReactQuill theme='snow' value={state.content} onChange={value => dispatch({ type: RecipeAction.Content, value: value })} />
                 </Col>
             </Row>
         </div>
@@ -113,7 +120,7 @@ function saveRecipe(recipe: IRecipe) {
         body: JSON.stringify(recipe),
     })
         .then(response => {
-            if (response.status == 200) {
+            if (response.status === 200) {
                 console.log('Success');
 
             } else {
@@ -125,14 +132,48 @@ function saveRecipe(recipe: IRecipe) {
         });
 }
 
-EditRecipe.defaultProps = {
-    recipe: undefined,
+
+function createRecipe(recipe: IRecipe) {
+    const createRecipe = recipe as ICreateRecipe
+    console.log("Create recipe: ", createRecipe);
+
+    fetch('http://localhost:3030/recipe', {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(createRecipe),
+    })
+        .then(response => {
+            if (response.status === 201) {
+                console.log('Success');
+
+            } else {
+                console.log('Error, save failed:', response);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
 }
 
-function CreateRecipe() {
-    return EditRecipe(undefined);
+function deleteRecipe(recipe: IRecipe) {
+    console.log("Delete recipe: ", recipe);
+
+    fetch('http://localhost:3030/recipe/' + recipe.id, {
+        method: 'DELETE', // or 'PUT'
+    })
+        .then(response => {
+            if (response.status === 204) {
+                console.log('Success');
+
+            } else {
+                console.log('Error, save failed:', response);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
 }
 
-
-export   { EditRecipe, CreateRecipe };
-// export { EditRecipe, CreateRecipe };
+export { EditRecipe, CreateRecipe };

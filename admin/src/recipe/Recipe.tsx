@@ -1,27 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import IRecipe from './models/recipe';
+import { useEffect, useState } from 'react';
+import { IRecipe } from './models/recipe';
 
 import 'react-quill/dist/quill.snow.css';
 import { Layout, Menu } from 'antd';
 import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
-import _ from 'lodash';
 import { EditRecipe, CreateRecipe } from './EditRecipe';
 
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
-function Recipe() {
-    const [value, setValue] = useState('');
-    const [error, setError] = useState(null as any);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [recipies, setRecipies] = useState([] as IRecipe[]);
+function loadRecipiesFunc(setIsLoaded: any, setRecipies: any, setError: any): () => void {
 
-    useEffect(() => {
+    return () => {
         fetch('http://localhost:3030/recipe')
             .then(res => res.json()).then(
                 (result) => {
                     setIsLoaded(true);
-                    console.log(result);
+                    console.log("Recipies loaded: ", result);
                     setRecipies(result);
                 },
                 // Note: it's important to handle errors here
@@ -31,6 +26,18 @@ function Recipe() {
                     setIsLoaded(true);
                     setError(error);
                 })
+    }
+}
+
+function Recipe() {
+    const [error, setError] = useState(null as any);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [recipies, setRecipies] = useState([] as IRecipe[]);
+
+    const loadRecipies = loadRecipiesFunc(setIsLoaded, setRecipies, setError);
+
+    useEffect(() => {
+        loadRecipies();
     }, []);
 
     if (error) {
@@ -60,7 +67,7 @@ function Recipe() {
                 <Content style={{ padding: '0 10px' }}>
                     <Routes>
                         {/* <Route path="" element={<ContentWrapper recipe={recipies[0]} />}> */}
-                        <Route path=":id" element={<EditRecipe recipe={_.find(recipies, { id: 5 })} />} />
+                        <Route path=":id" element={<EditRecipe recipies={recipies} />} />
                         <Route path="create" element={<CreateRecipe />} />
                         <Route path="*" element={<div>Invalid route </div>} />
                         {/* </Route> */}
