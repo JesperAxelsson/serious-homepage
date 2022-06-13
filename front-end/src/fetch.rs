@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 // use serde::{Deserialize};
 use serde::de::DeserializeOwned;
+use yew::html::Scope;
 // use serde_json::Result;
 use std::fmt::{Error, Formatter};
 use std::future::Future;
@@ -18,7 +19,7 @@ use yew::prelude::*;
 /// If the future panics, then the promise will not resolve, and will leak.
 // #[cfg(all(target_arch = "wasm32", not(target_os = "wasi"), not(cargo_web)))]
 #[allow(unused_must_use)]
-pub fn send_future<COMP: Component, F>(link: &ComponentLink<COMP>, future: F)
+pub fn send_future<COMP: Component, F>(link: &Scope<COMP>, future: F)
 where
     F: Future<Output = COMP::Message> + 'static,
 {
@@ -52,7 +53,7 @@ impl From<JsValue> for FetchError {
 }
 
 /// The possible states a fetch request can be in.
-#[derive( Debug)]
+#[derive(Debug)]
 pub enum FetchState<T> {
     NotFetching,
     Fetching,
@@ -86,7 +87,9 @@ pub async fn fetch_url(url: &str) -> Result<String, FetchError> {
 /// Consult the following for an example of the fetch api by the team behind web_sys:
 /// https://rustwasm.github.io/wasm-bindgen/examples/fetch.html
 pub async fn fetch_url2<D>(url: &str) -> Result<D, FetchError>
-    where D: DeserializeOwned {
+where
+    D: DeserializeOwned,
+{
     let mut opts = RequestInit::new();
     opts.method("GET");
     opts.mode(RequestMode::Cors);
@@ -100,13 +103,11 @@ pub async fn fetch_url2<D>(url: &str) -> Result<D, FetchError>
     let resp: Response = resp_value.dyn_into().unwrap();
 
     let js_text: JsValue = JsFuture::from(resp.text()?).await?;
-    
-    let text: String =  js_text.as_string().unwrap().to_string();
 
-    
+    let text: String = js_text.as_string().unwrap().to_string();
+
     // let txt: &str = text.clone().as_str();
-    let data: D = serde_json::from_str::<D>(& text).unwrap();
-
+    let data: D = serde_json::from_str::<D>(&text).unwrap();
 
     // let ss = text.as_string().unwrap();
     // let data: D =  serde_json::from_str(&ss).unwrap();

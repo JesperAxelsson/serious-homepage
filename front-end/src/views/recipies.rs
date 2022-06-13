@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use serde::{Deserialize, Serialize};
+use yew::html::Scope;
 // use serde_json::Result;
 
 use crate::components::ViewRecipe;
@@ -15,7 +16,6 @@ pub struct RecipeListItem {
 }
 
 pub struct Recipies {
-    link: ComponentLink<Self>,
     markdown: FetchState<Vec<RecipeListItem>>,
     // markdown: FetchState<String>,
     state: PageState,
@@ -40,16 +40,15 @@ impl Component for Recipies {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         info!("recipie create!");
         Recipies {
-            link,
             markdown: FetchState::NotFetching,
             state: PageState::Browsing,
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::GetMarkdown => {
                 info!("New fetch!");
@@ -60,9 +59,9 @@ impl Component for Recipies {
                     }
                 };
 
-                send_future(&self.link, future);
+                send_future(&ctx.link(), future);
 
-                self.link
+                ctx.link()
                     .send_message(Msg::SetMarkdownFetchState(FetchState::Fetching));
 
                 false
@@ -85,12 +84,12 @@ impl Component for Recipies {
         }
     }
 
-    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
         self.state = PageState::Browsing;
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
         info!("recipie view!");
 
         html! {
@@ -102,7 +101,7 @@ impl Component for Recipies {
                             {
                                 match &self.markdown {
                                     FetchState::NotFetching => {
-                                        self.link.send_message(Msg::GetMarkdown);
+                                        ctx.link().send_message(Msg::GetMarkdown);
                                         html! {"Fetching"}
                                     },
                                     FetchState::Fetching => html! {"Fetching"},
@@ -111,7 +110,7 @@ impl Component for Recipies {
                                             <h3 class="pb-3 ">
                                                 { "Pick your poison!" }
                                             </h3>
-                                            { data.iter().map(|rec| rec.render(&self.link) ).collect::<Html>() }
+                                            { data.iter().map(|rec| rec.render(&ctx.link()) ).collect::<Html>() }
                                         </div>
                                     },
                                     FetchState::Failed(err) => html! {&err},
@@ -121,7 +120,7 @@ impl Component for Recipies {
                         ),
                         PageState::Viewing(idd) => html!(
                             <div>
-                                <ViewRecipe id=idd />
+                                <ViewRecipe id={idd} />
                             </div>
                         ),
                     }
@@ -132,12 +131,12 @@ impl Component for Recipies {
 }
 
 impl RecipeListItem {
-    fn render(&self, link: &ComponentLink<Recipies>) -> Html {
+    fn render(&self, link: &Scope<Recipies>) -> Html {
         let id = self.id;
 
         html! {
             <div class="pb-3">
-                <a href="#" onclick=link.callback(move |_| Msg::ChangePageState(PageState::Viewing(id)))>
+                <a href="#" onclick={link.callback(move |_| Msg::ChangePageState(PageState::Viewing(id)))}>
                     <div>
                         { &self.title }
                     </div>

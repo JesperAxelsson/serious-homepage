@@ -6,28 +6,28 @@ impl Component for Blog {
     type Message = ();
     type Properties = ();
 
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         Blog {}
     }
 
-    fn update(&mut self, _: Self::Message) -> ShouldRender {
-        true
-    }
+    // fn update(&mut self, _ctx: &Context<Self>,) -> bool {
+    //     true
+    // }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // self.title = props.title;
-        // self.onsignal = props.onsignal;
-        true
-    }
+    // fn changed(&mut self, ctx: &Context<Self>,) -> bool    {
+    //     // self.title = props.title;
+    //     // self.onsignal = props.onsignal;
+    //     true
+    // }
 
-    fn view(&self) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div class="flex flex-col overflow-hidden">
-                <h2 class="flex-shrink-0">{ "Everyone needs a blog right?" }</h2>
-                <div class="flex-1 overflow-y-auto">
-                        <p>
-                            {
-                                r#"
+                <div class="flex flex-col overflow-hidden">
+                    <h2 class="flex-shrink-0">{ "Everyone needs a blog right?" }</h2>
+                    <div class="flex-1 overflow-y-auto">
+                            <p>
+                                {
+                                    r#"
                                 Miusov, as a man man of breeding and deilcacy, could not but feel some inwrd qualms, when he reached the Father Superior's with Ivan: he felt ashamed of havin lost his temper. He felt that he ought to have disdaimed that despicable wretch, Fyodor Pavlovitch, too much to have been upset by him in Father Zossima's cell, and so to have forgotten himself. "Teh monks were not to blame, in any case," he reflceted, on the steps. "And if they're decent people here (and the Father Superior, I understand, is a nobleman) why not be friendly and courteous withthem? I won't argue, I'll fall in with everything, I'll win them by politness, and show them that I've nothing to do with that Aesop, thta buffoon, that Pierrot, and have merely been takken in over this affair, just as they have."
 
         He determined to drop his litigation with the monastry, and relinguish his claims to the wood-cuting and fishery rihgts at once. He was the more ready to do this becuase the rights had becom much less valuable, and he had indeed the vaguest idea where the wood and river in quedtion were.
@@ -42,11 +42,11 @@ impl Component for Blog {
 
         The Father Superior listened to him with diginity, and, with a slight bend of the head, replied:
         "#
-        }
-        </p>
-        <p>
-        {
-            r#"
+            }
+            </p>
+            <p>
+            {
+                r#"
 
         "I sincerly deplore his absence. Perhaps at our table he might have learnt to like us, and we him. Pray be seated, gentlemen."
 
@@ -76,11 +76,11 @@ impl Component for Blog {
 
         "Do you mean me?" mutered Maximov, puzzled.
         "#
-        }
-        </p>
-        <p>
-        {
-            r#"
+            }
+            </p>
+            <p>
+            {
+                r#"
         "Of course I mean you," cried Fyodor Pavlovitch. "Who else? The Father Superior cuold not be von Sohn."
 
         "But I am not von Sohn either. I am Maximov."
@@ -103,11 +103,11 @@ impl Component for Blog {
 
         "This is too disgraceful!" said Father Iosif.
         "#
-    }
-    </p>
-    <p>
-    {
-        r#"
+        }
+        </p>
+        <p>
+        {
+            r#"
 
         Father Paissy kept obsinately silent. Miusov rushed from the room, and Kalgonov afetr him.
 
@@ -133,11 +133,11 @@ impl Component for Blog {
 
         "Drive on!" Ivan shouted angryly to the coachman.
         "#
-    }
-    </p>
-    <p>
-    {
-        r#"
+        }
+        </p>
+        <p>
+        {
+            r#"
 
 
         "Why, what are you doing, what are you abuot? Why did you do that?" Fyodor Pavlovitch protested.
@@ -165,10 +165,10 @@ impl Component for Blog {
         Ivan shruged his shuolders contemptuosly, and turning away stared at the road. And they did not speek again all the way home.
 
                                 "#
-                            }
-                        </p>
-                    </div>
-            </div>
-        }
+                                }
+                            </p>
+                        </div>
+                </div>
+            }
     }
 }

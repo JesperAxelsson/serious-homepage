@@ -21,7 +21,6 @@ pub struct Props {
 }
 
 pub struct ViewRecipe {
-    link: ComponentLink<Self>,
     id: i32,
     state: PageState,
 }
@@ -42,7 +41,7 @@ impl Component for ViewRecipe {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(ctx: &Context<Self>) -> Self {
         //         ViewRecipe {
         //             markdown: r#"
         // # Banana pancakes!
@@ -57,13 +56,12 @@ impl Component for ViewRecipe {
         //         }
         info!("Hello yaya");
         ViewRecipe {
-            link,
-            id: props.id,
+            id: ctx.props().id,
             state: PageState::Init,
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         info!("Hello");
 
         match msg {
@@ -79,9 +77,9 @@ impl Component for ViewRecipe {
                     }
                 };
 
-                send_future(&self.link, future);
+                send_future(&ctx.link(), future);
 
-                self.link
+                ctx.link()
                     .send_message(Msg::SetFetchState(FetchState::Fetching));
 
                 false
@@ -99,16 +97,16 @@ impl Component for ViewRecipe {
             }
         }
     }
-    
-    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+
+    fn changed(&mut self, _ctx: &Context<Self>,) -> bool {
         // self.state = PageState::Browsing;
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
         match &self.state {
             PageState::Init => {
-                self.link.send_message(Msg::StartFetching);
+                ctx.link().send_message(Msg::StartFetching);
                 html!("Fetching...")
             }
             PageState::Fetching => html!("Fetching..."),

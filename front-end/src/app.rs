@@ -10,10 +10,9 @@ use crate::views::Home;
 use crate::views::Recipies;
 use crate::views::Todo;
 
-pub use yew::services::console::ConsoleService;
+// pub use yew::services::console::ConsoleService;
 
 pub struct App {
-    link: ComponentLink<Self>,
     state: State,
 }
 
@@ -41,15 +40,15 @@ impl Component for App {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         let state = State {
             page_state: PageState::Gallery,
             // page_state: PageState::Home,
         };
-        App { link, state }
+        App { state }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::ChangePageState(page_state) => self.state.page_state = page_state,
             Msg::Nope => {}
@@ -57,11 +56,11 @@ impl Component for App {
         true
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
         info!("rendered!");
 
         html! {
@@ -80,11 +79,11 @@ impl Component for App {
                 <div class="w-auto flex-grow-0 sm:flex-grow-1 ">
                     <div class="shadow flex flex-col h-full flex-1 justify-between max-h-full">
                         <div class="px-2 sm:px-0 sm:py-3 flex sm:flex-grow-1 flex-1 sm:flex-col" >
-                            { self.render_link(PageState::Home, "Home") }
-                            { self.render_link(PageState::Recipies, "Recipies") }
-                            { self.render_link(PageState::Gallery, "Gallery") }
-                            { self.render_link(PageState::Todo, "Todo") }
-                            { self.render_link(PageState::Blog, "Blog") }
+                            { self.render_link(PageState::Home, "Home", ctx) }
+                            { self.render_link(PageState::Recipies, "Recipies", ctx) }
+                            { self.render_link(PageState::Gallery, "Gallery", ctx) }
+                            { self.render_link(PageState::Todo, "Todo", ctx) }
+                            { self.render_link(PageState::Blog, "Blog", ctx) }
                         </div>
                         <div class="hidden sm:flex flex-grow-0 sm:pl-3 sm:pb-3 sm:pt-2 bg-darkgreen text-sm sm:text-regular text-center">
                             <p class="text-darkblue">{ "Written by " }<br/><div><a class="text-beige font-medium truncate" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></div></p>
@@ -128,9 +127,9 @@ impl App {
         }
     }
 
-    fn render_link(&self, page_state: PageState, title: &str) -> Html {
+    fn render_link(&self, page_state: PageState, title: &str, ctx: &Context<Self>) -> Html {
         let title = title.to_string();
-        
+
         let link_class = if self.state.page_state == page_state {
             "py-1 pl-2 shadow bg-darkgreen text-beige-lighter font-medium "
         } else {
@@ -138,7 +137,7 @@ impl App {
         };
 
         html! {
-            <a class="sm:pl-4 cursor-pointer sm:mb-2" onclick=self.link.callback(move |_| Msg::ChangePageState(page_state)) >
+            <a class="sm:pl-4 cursor-pointer sm:mb-2" onclick={ctx.link().callback(move |_| Msg::ChangePageState(page_state))} >
                 <div class={link_class}><div class="text-sm pr-1 sm:pr-4 tracking-wider font-semibold " title={title.clone()} > {title} </div></div>
             </a>
         }
