@@ -15,6 +15,8 @@ module.exports = (env, argv) => {
     devtool: 'eval-source-map',
     devServer: {
       static: distPath,
+
+      // allowedHosts: path.join(__dirname, 'dist'),
       compress: argv.mode === 'production',
       port: 8000
     },
@@ -50,9 +52,10 @@ module.exports = (env, argv) => {
         filename: "index.html"
       }),
       new CopyWebpackPlugin({
-        patterns:[
-        { from: './static', to: distPath }
-      ]}),
+        patterns: [
+          { from: './static', to: distPath }
+        ]
+      }),
       new WasmPackPlugin({
         crateDirectory: ".",
         extraArgs: "--no-typescript",
