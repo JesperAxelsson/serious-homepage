@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { PlusOutlined } from '@ant-design/icons';
-import { Modal, Upload } from 'antd';
+import { Modal, Upload, Layout, Menu } from 'antd';
 import type { RcFile, UploadProps } from 'antd/es/upload';
 import type { UploadFile } from 'antd/es/upload/interface';
+import { IAlbum } from './models/Album';
+
+import { loadAlbumListFunc } from './GalleryApi';
+import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
 
 
+const { Content, Sider } = Layout;
 
-
-function Gallery() {
+function Gallery2() {
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -81,7 +85,7 @@ function Gallery() {
     };
 
     const handleCancel = () => setPreviewVisible(false);
-    
+
     return (
         <div>
             Gallery change things
@@ -104,4 +108,58 @@ function Gallery() {
     )
 }
 
+function GalleryEdit (){
+    return <div>Dood</div>
+}
+
+function Gallery() {
+    const [error, setError] = useState(null as any);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [albums, setAlbums] = useState([] as IAlbum[]);
+
+    const loadRecipies = loadAlbumListFunc(setIsLoaded, setAlbums, setError);
+
+    useEffect(() => {
+        loadRecipies();
+    }, []);
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {
+        return <div>Loading...</div>;
+        // } else if (recipies.length == 0) {
+        //     return <div>No recipies yet</div>;
+    } else {
+        return (
+            <Layout >
+                <Sider theme='light'>
+                    <Menu>
+                        <Menu.Item key='-1'>
+                            <NavLink to='create'> Create new </NavLink>
+                        </Menu.Item>
+
+                        {albums.map(item => (
+                            <Menu.Item key={item.id}>
+                                <NavLink to={item.id + ''}> {item.title} </NavLink>
+                            </Menu.Item>
+                        ))}
+
+                    </Menu>
+                </Sider>
+
+                <Content style={{ padding: '0 10px' }}>
+                    <Routes>
+                        <Route path=":id" element={<GalleryEdit />} />
+                        <Route path="create" element={<GalleryEdit />} />
+                        <Route path="*" element={<div>Invalid route </div>} />
+                    </Routes>
+
+                    <Outlet />
+
+                </Content>
+            </Layout>
+        )
+    }
+
+}
 export default Gallery;

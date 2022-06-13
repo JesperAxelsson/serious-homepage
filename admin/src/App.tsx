@@ -11,7 +11,7 @@ import _ from "lodash";
 
 import Blog from './blog/blog'
 import Recipe from './recipe/Recipe'
-import Gallery from './gallery/gallery'
+import Gallery from './gallery/Gallery'
 import Title from 'antd/lib/typography/Title';
 
 const { Content, Sider } = Layout;
@@ -85,7 +85,7 @@ function App() {
               <Route path="/" element={<ContentWrapper title={getMenuItem(menu)?.label ?? ''} />}>
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/recipe/*" element={<Recipe />} />
-                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/gallery/*" element={<Gallery />} />
               </Route>
             </Routes>
           </Content>
