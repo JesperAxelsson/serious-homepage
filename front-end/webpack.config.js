@@ -14,7 +14,7 @@ module.exports = (env, argv) => {
     entry: './bootstrap.js',
     devtool: 'eval-source-map',
     devServer: {
-      contentBase: distPath,
+      static: distPath,
       compress: argv.mode === 'production',
       port: 8000
     },
