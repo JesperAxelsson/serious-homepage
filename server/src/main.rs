@@ -1,8 +1,8 @@
-mod auth;
-mod error;
-mod file;
+// mod auth;
+// mod error;
+// mod file;
 mod gallery;
-mod login;
+// mod login;
 mod models;
 mod recipies;
 mod todos;
@@ -10,10 +10,20 @@ mod todos;
 use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
-use warp::{http::Method, Filter};
 
-use todos::filters;
-// use gallery::filters;
+// use warp::{http::Method, Filter};
+use axum::{
+    async_trait,
+    extract::{FromRequest, RequestParts},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post},
+    Extension, Json, Router,
+};
+use serde::{Deserialize, Serialize};
+use std::net::SocketAddr;
+
+// use todos::filters;
 
 // TODO: Use salt and only store hashed passwords!
 
@@ -33,6 +43,9 @@ use todos::filters;
 ///
 #[tokio::main]
 async fn main() {
+    // initialize tracing
+    // tracing_subscriber::fmt::init();
+
     dotenv().ok();
 
     if env::var_os("RUST_LOG").is_none() {
@@ -45,42 +58,136 @@ async fn main() {
     }
 
     let db_url = env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'");
-
-    pretty_env_logger::init();
-
-    let download_route = warp::path("images").and(warp::fs::dir("./images/"));
-
     // Postgres
     let pool = PgPool::connect(&db_url)
         .await
         .expect("Failed to connect to pool");
 
-    let api = download_route
-        // .with(warp::log("images"))
-        .or(filters::todos(pool.clone()).with(warp::log("todos")))
-        .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
-        .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")))
-        .or(file::filters::filter(pool.clone()).with(warp::log("file")))
-        .or(login::filters::login_routes(pool.clone()).with(warp::log("login")))
-        .recover(error::handle_rejection);
+    pretty_env_logger::init();
 
-    let cors = warp::cors()
-        // .allow_origin("*")
-        .allow_origin("http://localhost:8080/")
-        .allow_origin("http://localhost:3030/")
-        .allow_credentials(true)
-        .allow_any_origin()
-        .allow_headers(vec![
-            "origin",
-            "date",
-            "content-type",
-            "content-length",
-            "access-control-allow-origin",
-        ])
-        .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
+    let app = Router::new()
+        .route("/", get(root))
+        // `POST /users` goes to `create_user`
+        .route("/users", post(create_user))
+        .route("/todo", get(todos::list_todos).post(todos::create_todo))
+        .route(
+            "/todo/:id",
+            get(todos::get_todo)
+                .put(todos::update_todo)
+                .delete(todos::delete_todo),
+        )
+        .route(
+            "/recipe",
+            get(recipies::list_recipies).post(recipies::create_recipe),
+        )
+        .route(
+            "/recipe/:id",
+            get(recipies::get_recipe)
+                .put(recipies::update_recipe)
+                .delete(recipies::delete_recipe),
+        )
+        .route(
+            "/gallery",
+            get(gallery::list_album).post(gallery::create_album),
+        )
+        .route("/gallery/:id", get(gallery::get_album))
+        .layer(Extension(pool));
 
-    // View access logs by setting `RUST_LOG=todos`.
-    let routes = api.with(cors);
-    // Start up the server...
-    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3030));
+    // tracing::debug!("listening on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+
+    // let download_route = warp::path("images").and(warp::fs::dir("./images/"));
+
+    // let api = download_route
+    //     // .with(warp::log("images"))
+    //     .or(filters::todos(pool.clone()).with(warp::log("todos")))
+    //     .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
+    //     .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")))
+    //     .or(file::filters::filter(pool.clone()).with(warp::log("file")))
+    //     .or(login::filters::login_routes(pool.clone()).with(warp::log("login")))
+    //     .recover(error::handle_rejection);
+
+    // let cors = warp::cors()
+    //     // .allow_origin("*")
+    //     .allow_origin("http://localhost:8080/")
+    //     .allow_origin("http://localhost:3030/")
+    //     .allow_credentials(true)
+    //     .allow_any_origin()
+    //     .allow_headers(vec![
+    //         "origin",
+    //         "date",
+    //         "content-type",
+    //         "content-length",
+    //         "access-control-allow-origin",
+    //     ])
+    //     .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
+}
+
+// basic handler that responds with a static string
+async fn root() -> &'static str {
+    "Hello, World!"
+}
+
+async fn create_user(
+    // this argument tells axum to parse the request body
+    // as JSON into a `CreateUser` type
+    Json(payload): Json<CreateUser>,
+) -> impl IntoResponse {
+    // insert your application logic here
+    let user = User {
+        id: 1337,
+        username: payload.username,
+    };
+
+    // this will be converted into a JSON response
+    // with a status code of `201 Created`
+    (StatusCode::CREATED, Json(user))
+}
+
+// the input to our `create_user` handler
+#[derive(Deserialize)]
+struct CreateUser {
+    username: String,
+}
+
+// the output to our `create_user` handler
+#[derive(Serialize)]
+struct User {
+    id: u64,
+    username: String,
+}
+
+// we can also write a custom extractor that grabs a connection from the pool
+// which setup is appropriate depends on your application
+pub struct DatabaseConnection(sqlx::pool::PoolConnection<sqlx::Postgres>);
+
+#[async_trait]
+impl<B> FromRequest<B> for DatabaseConnection
+where
+    B: Send,
+{
+    type Rejection = (StatusCode, String);
+
+    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
+        let Extension(pool) = Extension::<PgPool>::from_request(req)
+            .await
+            .map_err(internal_error)?;
+
+        let conn = pool.acquire().await.map_err(internal_error)?;
+
+        Ok(Self(conn))
+    }
+}
+
+/// Utility function for mapping any error into a `500 Internal Server Error`
+/// response.
+fn internal_error<E>(err: E) -> (StatusCode, String)
+where
+    E: std::error::Error,
+{
+    (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
 }

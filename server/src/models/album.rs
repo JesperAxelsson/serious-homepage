@@ -7,3 +7,10 @@ pub struct Album {
     pub description: String,
     pub image_url: String,
 }
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct CreateAlbum {
+    pub title: String,
+    pub description: String,
+    pub image_url: String,
+}

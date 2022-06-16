@@ -15,6 +15,7 @@ pub struct CreateRecipe {
     pub content: String,
 }
 
+
 // #[derive(Debug, Deserialize, Serialize, Clone)]
 // pub struct RecipeListItem {
 //     pub id: i64,
