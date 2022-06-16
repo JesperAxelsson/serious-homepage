@@ -3,12 +3,12 @@ use crate::{
     models::{CreateRecipe, Recipe},
     DatabaseConnection,
 };
-use axum::{extract::Path, http::StatusCode, Json};
+use axum::{extract::Path, http::StatusCode, Json, response::IntoResponse};
 
 pub async fn get_recipe(
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
-) -> Result<String, (StatusCode, String)> {
+) -> impl IntoResponse {
     let rec = sqlx::query!(
         "select id, title, description, content from recipe where id = $1",
         id
@@ -26,7 +26,7 @@ pub async fn get_recipe(
                 content: rec.content,
             };
 
-            Ok(serde_json::to_string(&recipe).expect("Failed to parse to json"))
+            Ok(Json(recipe))
         }
         Err(e) => Err(e),
     }
