@@ -23,8 +23,6 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
-// use todos::filters;
-
 // TODO: Use salt and only store hashed passwords!
 
 /// Provides a RESTful web server managing some Todos.
@@ -69,6 +67,7 @@ async fn main() {
         .route("/", get(root))
         // `POST /users` goes to `create_user`
         .route("/users", post(create_user))
+        // Todo
         .route("/todo", get(todos::list_todos).post(todos::create_todo))
         .route(
             "/todo/:id",
@@ -76,6 +75,7 @@ async fn main() {
                 .put(todos::update_todo)
                 .delete(todos::delete_todo),
         )
+        // Recipe
         .route(
             "/recipe",
             get(recipies::list_recipies).post(recipies::create_recipe),
@@ -86,11 +86,17 @@ async fn main() {
                 .put(recipies::update_recipe)
                 .delete(recipies::delete_recipe),
         )
+        // Gallery
         .route(
             "/gallery",
             get(gallery::list_album).post(gallery::create_album),
         )
-        .route("/gallery/:id", get(gallery::get_album))
+        .route(
+            "/gallery/:id",
+            get(gallery::get_album)
+                .put(gallery::update_album)
+                .delete(gallery::delete_album),
+        )
         .layer(Extension(pool));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3030));
