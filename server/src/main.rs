@@ -2,7 +2,7 @@
 // mod error;
 // mod file;
 mod gallery;
-// mod login;
+mod login;
 mod models;
 mod recipies;
 mod todos;
@@ -10,18 +10,23 @@ mod todos;
 use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
+use uuid::Uuid;
 
-// use warp::{http::Method, Filter};
+use async_session::{MemoryStore, SessionStore as _};
 use axum::{
     async_trait,
-    extract::{FromRequest, RequestParts},
-    http::StatusCode,
+    extract::{rejection::TypedHeaderRejectionReason, FromRequest, RequestParts},
+    headers::{self, Cookie},
+    http::{header, HeaderValue, StatusCode},
     response::IntoResponse,
     routing::{get, post},
-    Extension, Json, Router,
+    Extension, Json, Router, TypedHeader,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use tracing_subscriber::{filter, layer::SubscriberExt, reload, util::SubscriberInitExt};
+
+const AXUM_SESSION_COOKIE_NAME: &str = "serious_session";
 
 // TODO: Use salt and only store hashed passwords!
 
@@ -44,6 +49,17 @@ async fn main() {
     // initialize tracing
     // tracing_subscriber::fmt::init();
 
+    let filter = filter::LevelFilter::DEBUG;
+    let (filter, _reload_handle) = reload::Layer::new(filter);
+
+    tracing_subscriber::registry()
+        .with(filter)
+        // .with(tracing_subscriber::EnvFilter::new(
+        //     std::env::var("RUST_LOG").unwrap_or_else(|_| "example_sessions=debug".into()),
+        // ))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     dotenv().ok();
 
     if env::var_os("RUST_LOG").is_none() {
@@ -55,16 +71,22 @@ async fn main() {
         env::set_var("RUST_LOG", "info");
     }
 
+    // `MemoryStore` just used as an example. Don't use this in production.
+    let store = MemoryStore::new();
+
     let db_url = env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'");
     // Postgres
     let pool = PgPool::connect(&db_url)
         .await
         .expect("Failed to connect to pool");
 
-    pretty_env_logger::init();
+    // pretty_env_logger::init();
 
     let app = Router::new()
-        .route("/", get(root))
+        // .route("/", get(root))
+        .route("/login", post(login::login))
+        .route("/logout", post(login::logout))
+        .route("/isin", get(login::protected))
         // `POST /users` goes to `create_user`
         .route("/users", post(create_user))
         // Todo
@@ -97,25 +119,17 @@ async fn main() {
                 .put(gallery::update_album)
                 .delete(gallery::delete_album),
         )
-        .layer(Extension(pool));
+        .layer(Extension(pool))
+        .layer(Extension(store));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3030));
-    // tracing::debug!("listening on {}", addr);
+    tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
 
     // let download_route = warp::path("images").and(warp::fs::dir("./images/"));
-
-    // let api = download_route
-    //     // .with(warp::log("images"))
-    //     .or(filters::todos(pool.clone()).with(warp::log("todos")))
-    //     .or(recipies::filters::recipies(pool.clone()).with(warp::log("recipies")))
-    //     .or(gallery::filters::filter(pool.clone()).with(warp::log("gallery")))
-    //     .or(file::filters::filter(pool.clone()).with(warp::log("file")))
-    //     .or(login::filters::login_routes(pool.clone()).with(warp::log("login")))
-    //     .recover(error::handle_rejection);
 
     // let cors = warp::cors()
     //     // .allow_origin("*")
@@ -131,11 +145,6 @@ async fn main() {
     //         "access-control-allow-origin",
     //     ])
     //     .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
-}
-
-// basic handler that responds with a static string
-async fn root() -> &'static str {
-    "Hello, World!"
 }
 
 async fn create_user(
@@ -196,4 +205,78 @@ where
     E: std::error::Error,
 {
     (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
+}
+
+pub enum SessionIdFromSession {
+    FoundUserId(SessionId),
+    NotFound,
+}
+
+#[async_trait]
+impl<B> FromRequest<B> for SessionIdFromSession
+where
+    B: Send,
+{
+    type Rejection = (StatusCode, &'static str);
+
+    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
+        tracing::debug!("From req cookies!");
+
+        let Extension(store) = Extension::<MemoryStore>::from_request(req)
+            .await
+            .expect("`MemoryStore` extension missing");
+
+        // let cookie = Option::<TypedHeader<Cookie>>::from_request(req)
+        //     .await
+        //     .unwrap();
+
+        // let session_cookie = cookie
+        //     .as_ref()
+        //     .and_then(|cookie| cookie.get(AXUM_SESSION_COOKIE_NAME));
+
+        let cookies = TypedHeader::<headers::Cookie>::from_request(req)
+            .await
+            .map_err(|e| match *e.name() {
+                header::COOKIE => match e.reason() {
+                    TypedHeaderRejectionReason::Missing => {
+                        (StatusCode::UNAUTHORIZED, "Cookie header missing")
+                    }
+                    _ => panic!("unexpected error getting Cookie header(s): {}", e),
+                },
+                _ => panic!("unexpected error getting cookies: {}", e),
+            })?;
+
+        let session_cookie = cookies.get(AXUM_SESSION_COOKIE_NAME).ok_or((
+            StatusCode::UNAUTHORIZED,
+            "Could not get axum cookie from cookie",
+        ))?;
+
+        tracing::debug!("Session cookie: {:?}", session_cookie);
+
+        if let Some(session) = store.load_session(session_cookie.to_owned()).await.unwrap() {
+            if let Some(user_id) = session.get::<SessionId>("user_id") {
+                tracing::debug!(
+                    "UserIdFromSession: session decoded success, user_id={:?}",
+                    user_id
+                );
+                Ok(Self::FoundUserId(user_id))
+            } else {
+                Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "No `user_id` found in session",
+                ))
+            }
+        } else {
+            Err((StatusCode::UNAUTHORIZED, "Failed to find active cookie"))
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct SessionId(Uuid);
+
+impl SessionId {
+    fn new() -> Self {
+        Self(Uuid::new_v4())
+    }
 }
