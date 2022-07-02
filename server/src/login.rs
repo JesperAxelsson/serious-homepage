@@ -63,7 +63,7 @@ pub async fn login(
     let parsed_password = PasswordHash::new(&account.password).map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to parse password hash".to_owned(),
+            "Failed to parse password hash".to_string(),
         )
     })?;
 
