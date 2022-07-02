@@ -36,7 +36,6 @@ pub struct LoginResponse {
 }
 
 // TODO: Remove error information before production
-// TODO: Handle user already logged in as other user or self
 pub async fn login(
     Extension(store): Extension<MemoryStore>,
     TypedHeader(cookies): TypedHeader<headers::Cookie>,

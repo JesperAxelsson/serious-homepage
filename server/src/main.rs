@@ -1,12 +1,9 @@
 // mod auth;
 // mod error;
 // mod file;
-mod gallery;
-mod login;
+mod controllers;
 mod models;
-mod recipies;
 mod session;
-mod todos;
 
 use dotenv::dotenv;
 use sqlx::PgPool;
@@ -24,6 +21,8 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use tracing_subscriber::{filter, layer::SubscriberExt, reload, util::SubscriberInitExt};
+
+use crate::controllers::{gallery, login, recipies, todos};
 
 // TODO: Use salt and only store hashed passwords!
 
