@@ -6,7 +6,6 @@ use crate::{
 use axum::{extract::Path, http::StatusCode, Json, response::IntoResponse};
 
 pub async fn get_recipe(
-    _session_id: SessionId,
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> impl IntoResponse {
@@ -51,6 +50,7 @@ pub async fn list_recipies(DatabaseConnection(mut conn): DatabaseConnection) -> 
 }
 
 pub async fn create_recipe(
+    _session_id: SessionId,
     Json(create): Json<CreateRecipe>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
@@ -74,6 +74,7 @@ pub async fn create_recipe(
 }
 
 pub async fn update_recipe(
+    _session_id: SessionId,
     Path(id): Path<i64>,
     Json(update): Json<CreateRecipe>,
     DatabaseConnection(mut conn): DatabaseConnection,
@@ -106,6 +107,7 @@ pub async fn update_recipe(
 }
 
 pub async fn delete_recipe(
+    _session_id: SessionId,
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
