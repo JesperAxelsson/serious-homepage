@@ -2,7 +2,7 @@ use axum::{extract::Path, http::StatusCode, Json};
 
 use crate::{
     models::{Album, CreateAlbum, Image},
-    DatabaseConnection,
+    DatabaseConnection, session::SessionId,
 };
 
 pub async fn get_album(
@@ -57,6 +57,7 @@ pub async fn list_album(DatabaseConnection(mut conn): DatabaseConnection) -> (St
 }
 
 pub async fn create_album(
+    _session_id: SessionId,
     Json(new_album): Json<CreateAlbum>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
@@ -81,6 +82,7 @@ pub async fn create_album(
 }
 
 pub async fn update_album(
+    _session_id: SessionId,
     Path(id): Path<i64>,
     Json(new_album): Json<CreateAlbum>,
     DatabaseConnection(mut conn): DatabaseConnection,
@@ -106,6 +108,7 @@ pub async fn update_album(
 }
 
 pub async fn delete_album(
+    _session_id: SessionId,
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {

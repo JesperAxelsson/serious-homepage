@@ -1,7 +1,7 @@
 use crate::{
     internal_error,
     models::{CreateTodo, ListOptions, Todo, UpdateTodo},
-    DatabaseConnection,
+    DatabaseConnection, session::SessionId,
 };
 use axum::{
     extract::{Path, Query},
@@ -10,6 +10,7 @@ use axum::{
 };
 
 pub async fn get_todo(
+    _session_id: SessionId,
     Path(id): Path<i64>,
     DatabaseConnection(conn): DatabaseConnection,
 ) -> Result<String, (StatusCode, String)> {

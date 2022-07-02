@@ -1,11 +1,12 @@
 use crate::{
     internal_error,
     models::{CreateRecipe, Recipe},
-    DatabaseConnection,
+    DatabaseConnection, session::SessionId,
 };
 use axum::{extract::Path, http::StatusCode, Json, response::IntoResponse};
 
 pub async fn get_recipe(
+    _session_id: SessionId,
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> impl IntoResponse {

@@ -5,28 +5,25 @@ mod gallery;
 mod login;
 mod models;
 mod recipies;
+mod session;
 mod todos;
 
 use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
-use uuid::Uuid;
 
-use async_session::{MemoryStore, SessionStore as _};
+use async_session::MemoryStore;
 use axum::{
     async_trait,
-    extract::{rejection::TypedHeaderRejectionReason, FromRequest, RequestParts},
-    headers::{self, Cookie},
-    http::{header, HeaderValue, StatusCode},
+    extract::{FromRequest, RequestParts},
+    http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
-    Extension, Json, Router, TypedHeader,
+    Extension, Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use tracing_subscriber::{filter, layer::SubscriberExt, reload, util::SubscriberInitExt};
-
-const AXUM_SESSION_COOKIE_NAME: &str = "serious_session";
 
 // TODO: Use salt and only store hashed passwords!
 
@@ -205,78 +202,4 @@ where
     E: std::error::Error,
 {
     (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
-}
-
-pub enum SessionIdFromSession {
-    FoundUserId(SessionId),
-    NotFound,
-}
-
-#[async_trait]
-impl<B> FromRequest<B> for SessionIdFromSession
-where
-    B: Send,
-{
-    type Rejection = (StatusCode, &'static str);
-
-    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
-        tracing::debug!("From req cookies!");
-
-        let Extension(store) = Extension::<MemoryStore>::from_request(req)
-            .await
-            .expect("`MemoryStore` extension missing");
-
-        // let cookie = Option::<TypedHeader<Cookie>>::from_request(req)
-        //     .await
-        //     .unwrap();
-
-        // let session_cookie = cookie
-        //     .as_ref()
-        //     .and_then(|cookie| cookie.get(AXUM_SESSION_COOKIE_NAME));
-
-        let cookies = TypedHeader::<headers::Cookie>::from_request(req)
-            .await
-            .map_err(|e| match *e.name() {
-                header::COOKIE => match e.reason() {
-                    TypedHeaderRejectionReason::Missing => {
-                        (StatusCode::UNAUTHORIZED, "Cookie header missing")
-                    }
-                    _ => panic!("unexpected error getting Cookie header(s): {}", e),
-                },
-                _ => panic!("unexpected error getting cookies: {}", e),
-            })?;
-
-        let session_cookie = cookies.get(AXUM_SESSION_COOKIE_NAME).ok_or((
-            StatusCode::UNAUTHORIZED,
-            "Could not get axum cookie from cookie",
-        ))?;
-
-        tracing::debug!("Session cookie: {:?}", session_cookie);
-
-        if let Some(session) = store.load_session(session_cookie.to_owned()).await.unwrap() {
-            if let Some(user_id) = session.get::<SessionId>("user_id") {
-                tracing::debug!(
-                    "UserIdFromSession: session decoded success, user_id={:?}",
-                    user_id
-                );
-                Ok(Self::FoundUserId(user_id))
-            } else {
-                Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "No `user_id` found in session",
-                ))
-            }
-        } else {
-            Err((StatusCode::UNAUTHORIZED, "Failed to find active cookie"))
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub struct SessionId(Uuid);
-
-impl SessionId {
-    fn new() -> Self {
-        Self(Uuid::new_v4())
-    }
 }
