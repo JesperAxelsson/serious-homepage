@@ -61,7 +61,7 @@ pub async fn create_todo(
     Json(create): Json<CreateTodo>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("create_todo: {:?}", create);
+    tracing::debug!("create_todo: {:?}", create);
     let _rec = sqlx::query!(
         r#"
                 INSERT INTO todo (text)
@@ -82,7 +82,7 @@ pub async fn update_todo(
     Json(update): Json<UpdateTodo>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("update_todo: id={}, todo={:?}", id, update);
+    tracing::debug!("update_todo: id={}, todo={:?}", id, update);
 
     let rec = sqlx::query!(
         r#"
@@ -98,7 +98,7 @@ pub async fn update_todo(
     .await
     .expect("Failed to update TODO");
 
-    log::debug!("    -> todo id not found!");
+    tracing::debug!("    -> todo id not found!");
 
     // If the for loop didn't return OK, then the ID doesn't exist...
     if rec.rows_affected() == 1 {
@@ -112,7 +112,7 @@ pub async fn delete_todo(
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("delete_todo: id={}", id);
+    tracing::debug!("delete_todo: id={}", id);
 
     let rec = sqlx::query!(
         r#"
@@ -128,7 +128,7 @@ pub async fn delete_todo(
     if rec.rows_affected() == 1 {
         StatusCode::NO_CONTENT
     } else {
-        log::debug!("    -> todo id not found!");
+        tracing::debug!("    -> todo id not found!");
         StatusCode::NOT_FOUND
     }
 }

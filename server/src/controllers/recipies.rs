@@ -54,7 +54,7 @@ pub async fn create_recipe(
     Json(create): Json<CreateRecipe>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("create_recipe: {:?}", create);
+    tracing::debug!("create_recipe: {:?}", create);
 
     let _rec = sqlx::query!(
         r#"
@@ -79,7 +79,7 @@ pub async fn update_recipe(
     Json(update): Json<CreateRecipe>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("update_recipe: id={}, recipe={:?}", id, update);
+    tracing::debug!("update_recipe: id={}, recipe={:?}", id, update);
 
     let rec = sqlx::query!(
         r#"
@@ -96,7 +96,7 @@ pub async fn update_recipe(
     .await
     .expect("Failed to update recipe");
 
-    log::debug!("    -> recipe id not found!");
+    tracing::debug!("    -> recipe id not found!");
 
     // If the for loop didn't return OK, then the ID doesn't exist...
     if rec.rows_affected() == 1 {
@@ -111,7 +111,7 @@ pub async fn delete_recipe(
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("delete_recipe: id={}", id);
+    tracing::debug!("delete_recipe: id={}", id);
 
     let rec = sqlx::query!(
         r#"
@@ -129,7 +129,7 @@ pub async fn delete_recipe(
         // yet no body expected...
         StatusCode::NO_CONTENT
     } else {
-        log::debug!("    -> recipe id not found!");
+        tracing::debug!("    -> recipe id not found!");
         StatusCode::NOT_FOUND
     }
 }

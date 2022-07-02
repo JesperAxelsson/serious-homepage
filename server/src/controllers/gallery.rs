@@ -9,7 +9,7 @@ pub async fn get_album(
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> (StatusCode, String) {
-    log::debug!("get_album: {}", id);
+    tracing::debug!("get_album: {}", id);
     let images = sqlx::query!(
         r#"select * from image i
             inner join album2image ai on i.id = ai.image_id
@@ -36,7 +36,7 @@ pub async fn get_album(
 }
 
 pub async fn list_album(DatabaseConnection(mut conn): DatabaseConnection) -> (StatusCode, String) {
-    log::debug!("list_album");
+    tracing::debug!("list_album");
     let gallery = sqlx::query!("select id, title, description, image_url from album order by id",)
         .fetch_all(&mut conn)
         .await
@@ -61,7 +61,7 @@ pub async fn create_album(
     Json(new_album): Json<CreateAlbum>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("create_album: {:?}", new_album);
+    tracing::debug!("create_album: {:?}", new_album);
 
     let _rec = sqlx::query!(
         r#"
@@ -87,7 +87,7 @@ pub async fn update_album(
     Json(new_album): Json<CreateAlbum>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("update_album: {:?}", new_album);
+    tracing::debug!("update_album: {:?}", new_album);
 
     let _rec = sqlx::query!(
         r#"
@@ -112,7 +112,7 @@ pub async fn delete_album(
     Path(id): Path<i64>,
     DatabaseConnection(mut conn): DatabaseConnection,
 ) -> StatusCode {
-    log::debug!("delete_album: id={}", id);
+    tracing::debug!("delete_album: id={}", id);
 
     let rec = sqlx::query!(
         r#"
@@ -130,7 +130,7 @@ pub async fn delete_album(
         // yet no body expected...
         StatusCode::NO_CONTENT
     } else {
-        log::debug!("    -> recipe id not found!");
+        tracing::debug!("    -> recipe id not found!");
         StatusCode::NOT_FOUND
     }
 }
