@@ -1,7 +1,7 @@
 // mod auth;
 // mod error;
-// mod file;
 mod controllers;
+mod file;
 mod models;
 mod session;
 
@@ -14,11 +14,10 @@ use axum::{
     async_trait,
     extract::{FromRequest, RequestParts},
     http::StatusCode,
-    response::IntoResponse,
     routing::{get, post},
-    Extension, Json, Router,
+    Extension, Router,
 };
-use serde::{Deserialize, Serialize};
+
 use std::net::SocketAddr;
 use tracing_subscriber::{filter, layer::SubscriberExt, reload, util::SubscriberInitExt};
 
@@ -83,8 +82,6 @@ async fn main() {
         .route("/login", post(login::login))
         .route("/logout", post(login::logout))
         .route("/isin", get(login::protected))
-        // `POST /users` goes to `create_user`
-        .route("/users", post(create_user))
         // Todo
         .route("/todo", get(todos::list_todos).post(todos::create_todo))
         .route(
@@ -115,6 +112,10 @@ async fn main() {
                 .put(gallery::update_album)
                 .delete(gallery::delete_album),
         )
+        .route("/file/:file_name", get(file::get_file))
+        // .route("/file", get_service(ServeDir::new("files")).handle_error(handle_error))
+        .route("/image", post(file::upload_many_file))
+        .route("/image/:file_name", post(file::save_request_body))
         .layer(Extension(pool))
         .layer(Extension(store));
 
@@ -141,35 +142,6 @@ async fn main() {
     //         "access-control-allow-origin",
     //     ])
     //     .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE]);
-}
-
-async fn create_user(
-    // this argument tells axum to parse the request body
-    // as JSON into a `CreateUser` type
-    Json(payload): Json<CreateUser>,
-) -> impl IntoResponse {
-    // insert your application logic here
-    let user = User {
-        id: 1337,
-        username: payload.username,
-    };
-
-    // this will be converted into a JSON response
-    // with a status code of `201 Created`
-    (StatusCode::CREATED, Json(user))
-}
-
-// the input to our `create_user` handler
-#[derive(Deserialize)]
-struct CreateUser {
-    username: String,
-}
-
-// the output to our `create_user` handler
-#[derive(Serialize)]
-struct User {
-    id: u64,
-    username: String,
 }
 
 // we can also write a custom extractor that grabs a connection from the pool
