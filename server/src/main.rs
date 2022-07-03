@@ -23,8 +23,6 @@ use tracing_subscriber::{filter, layer::SubscriberExt, reload, util::SubscriberI
 
 use crate::controllers::{gallery, login, recipies, todos};
 
-// TODO: Use salt and only store hashed passwords!
-
 /// Provides a RESTful web server managing some Todos.
 ///
 /// API will be:
