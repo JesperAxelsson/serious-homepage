@@ -8,29 +8,32 @@ edition = "2018"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-warp = "0.3"
+tokio-util = { version = "0.7", features = ["io"] }
+axum = { version="0.5", features = ["headers","multipart"] }
+tower-http = { version = "0.3.0", features = ["fs", "trace"] }
+futures = "0.3"
 
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-pretty_env_logger = "0.4.0"
 serde_derive = "1.0.116"
 serde = "1.0.116"
 serde_json = "1.0.58"
-futures= "0.3.5"
-log = "0.4.11"
 
-bytes = "1.0"
-uuid = { version = "1.1", features = ["v4"] }
+uuid = { version = "1.1", features = ["v4", "serde"] }
 
 dotenv = "0.15.0"
 
-sqlx = { version = "0.5", default-features = false, features = [ "runtime-tokio-rustls", "macros", "postgres" ] }
-rand = "0.8"
-rust-argon2 = "1"
-thiserror = "1.0"
+sqlx = { version = "0.6", default-features = false, features = [ "runtime-tokio-rustls", "macros", "postgres" ] }
 
+# thiserror = "1.0"
 
-jsonwebtoken = "8.1"
-chrono = "0.4"
+async-session = "3.0.0"
+
+argon2 = "0.4"
+
+# chrono = "0.4"
+
 # rusoto_core = {version = "0.45.0", default_features = false, features=["rustls"]}
 # rusoto_s3 =  {version =  "0.45.0", default_features = false, features=["rustls"]}
 
@@ -38,7 +41,3 @@ chrono = "0.4"
 # rusoto_s3 = "0.45.0"
 
 # rust-s3 = "0.26"
-
-[build]
-# Speed up linking, does need lld though. Might disable later?
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]
