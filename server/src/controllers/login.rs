@@ -39,9 +39,9 @@ pub struct LoginResponse {
 pub async fn login(
     Extension(store): Extension<MemoryStore>,
     TypedHeader(cookies): TypedHeader<headers::Cookie>,
-    Json(credentials): Json<LoginRequest>,
     // session_id: SessionIdFromSession,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(credentials): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, impl IntoResponse> {
     // Remove previous session
     let result = logout_internal(&store, &cookies).await;

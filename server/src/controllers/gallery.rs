@@ -58,8 +58,8 @@ pub async fn list_album(DatabaseConnection(mut conn): DatabaseConnection) -> (St
 
 pub async fn create_album(
     _session_id: SessionId,
-    Json(new_album): Json<CreateAlbum>,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(new_album): Json<CreateAlbum>,
 ) -> StatusCode {
     tracing::debug!("create_album: {:?}", new_album);
 
@@ -84,8 +84,8 @@ pub async fn create_album(
 pub async fn update_album(
     _session_id: SessionId,
     Path(id): Path<i64>,
-    Json(new_album): Json<CreateAlbum>,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(new_album): Json<CreateAlbum>,
 ) -> StatusCode {
     tracing::debug!("update_album: {:?}", new_album);
 

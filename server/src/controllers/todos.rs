@@ -1,7 +1,8 @@
 use crate::{
     internal_error,
     models::{CreateTodo, ListOptions, Todo, UpdateTodo},
-    DatabaseConnection, session::SessionId,
+    session::SessionId,
+    DatabaseConnection,
 };
 use axum::{
     extract::{Path, Query},
@@ -58,8 +59,8 @@ pub async fn list_todos(
 }
 
 pub async fn create_todo(
-    Json(create): Json<CreateTodo>,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(create): Json<CreateTodo>,
 ) -> StatusCode {
     tracing::debug!("create_todo: {:?}", create);
     let _rec = sqlx::query!(
@@ -79,8 +80,8 @@ pub async fn create_todo(
 
 pub async fn update_todo(
     Path(id): Path<i64>,
-    Json(update): Json<UpdateTodo>,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(update): Json<UpdateTodo>,
 ) -> StatusCode {
     tracing::debug!("update_todo: id={}, todo={:?}", id, update);
 

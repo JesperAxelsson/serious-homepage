@@ -12,8 +12,8 @@ use std::env;
 use async_session::MemoryStore;
 use axum::{
     async_trait,
-    extract::{FromRequest, RequestParts},
-    http::StatusCode,
+    extract::FromRequestParts,
+    http::{request::Parts, StatusCode},
     routing::{get, post},
     Extension, Router,
 };
@@ -147,14 +147,14 @@ async fn main() {
 pub struct DatabaseConnection(sqlx::pool::PoolConnection<sqlx::Postgres>);
 
 #[async_trait]
-impl<B> FromRequest<B> for DatabaseConnection
+impl<S> FromRequestParts<S> for DatabaseConnection
 where
-    B: Send,
+    S: Send + Sync,
 {
     type Rejection = (StatusCode, String);
 
-    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
-        let Extension(pool) = Extension::<PgPool>::from_request(req)
+    async fn from_request_parts(req: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let Extension(pool) = Extension::<PgPool>::from_request_parts(req, state)
             .await
             .map_err(internal_error)?;
 

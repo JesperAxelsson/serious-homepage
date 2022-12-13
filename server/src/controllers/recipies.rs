@@ -1,9 +1,10 @@
 use crate::{
     internal_error,
     models::{CreateRecipe, Recipe},
-    DatabaseConnection, session::SessionId,
+    session::SessionId,
+    DatabaseConnection,
 };
-use axum::{extract::Path, http::StatusCode, Json, response::IntoResponse};
+use axum::{extract::Path, http::StatusCode, response::IntoResponse, Json};
 
 pub async fn get_recipe(
     Path(id): Path<i64>,
@@ -51,8 +52,8 @@ pub async fn list_recipies(DatabaseConnection(mut conn): DatabaseConnection) -> 
 
 pub async fn create_recipe(
     _session_id: SessionId,
-    Json(create): Json<CreateRecipe>,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(create): Json<CreateRecipe>,
 ) -> StatusCode {
     tracing::debug!("create_recipe: {:?}", create);
 
@@ -76,8 +77,8 @@ pub async fn create_recipe(
 pub async fn update_recipe(
     _session_id: SessionId,
     Path(id): Path<i64>,
-    Json(update): Json<CreateRecipe>,
     DatabaseConnection(mut conn): DatabaseConnection,
+    Json(update): Json<CreateRecipe>,
 ) -> StatusCode {
     tracing::debug!("update_recipe: id={}, recipe={:?}", id, update);
 

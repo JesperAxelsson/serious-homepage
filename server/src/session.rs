@@ -1,8 +1,8 @@
 use async_session::{async_trait, MemoryStore, SessionStore};
 use axum::{
-    extract::{rejection::TypedHeaderRejectionReason, FromRequest, RequestParts},
+    extract::{rejection::TypedHeaderRejectionReason, FromRequestParts},
     headers,
-    http::{header, StatusCode},
+    http::{header, request::Parts, StatusCode},
     Extension, TypedHeader,
 };
 use serde::{Deserialize, Serialize};
@@ -20,20 +20,20 @@ impl SessionId {
 }
 
 #[async_trait]
-impl<B> FromRequest<B> for SessionId
+impl<S> FromRequestParts<S> for SessionId
 where
-    B: Send,
+    S: Send + Sync,
 {
     type Rejection = (StatusCode, &'static str);
 
-    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(req: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         tracing::debug!("From req cookies!");
 
-        let Extension(store) = Extension::<MemoryStore>::from_request(req)
+        let Extension(store) = Extension::<MemoryStore>::from_request_parts(req, state)
             .await
             .expect("`MemoryStore` extension missing");
 
-        let cookies = TypedHeader::<headers::Cookie>::from_request(req)
+        let cookies = TypedHeader::<headers::Cookie>::from_request_parts(req, state)
             .await
             .map_err(|e| match *e.name() {
                 header::COOKIE => match e.reason() {
