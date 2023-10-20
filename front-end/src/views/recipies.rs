@@ -53,7 +53,7 @@ impl Component for Recipies {
             Msg::GetMarkdown => {
                 info!("New fetch!");
                 let future = async {
-                    match fetch_url2("http://localhost:3030/recipe").await {
+                    match fetch_url2("/api/recipe").await {
                         Ok(md) => Msg::SetMarkdownFetchState(FetchState::Success(md)),
                         Err(err) => Msg::SetMarkdownFetchState(FetchState::Failed(err)),
                     }
@@ -84,7 +84,7 @@ impl Component for Recipies {
         }
     }
 
-    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
+    fn changed(&mut self, _ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         self.state = PageState::Browsing;
         true
     }

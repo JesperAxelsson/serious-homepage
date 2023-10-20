@@ -71,7 +71,7 @@ impl Component for ViewRecipe {
                 let id = self.id;
 
                 let future = async move {
-                    match fetch_url2(&format!("http://localhost:3030/recipe/{}", id)).await {
+                    match fetch_url2(&format!("/api/recipe/{}", id)).await {
                         Ok(md) => Msg::SetFetchState(FetchState::Success(md)),
                         Err(err) => Msg::SetFetchState(FetchState::Failed(err)),
                     }
@@ -98,7 +98,7 @@ impl Component for ViewRecipe {
         }
     }
 
-    fn changed(&mut self, _ctx: &Context<Self>,) -> bool {
+    fn changed(&mut self, _ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         // self.state = PageState::Browsing;
         true
     }

@@ -35,7 +35,7 @@ pub struct Image {
 pub enum PageState {
     Albums,
     Images(i64),
-    ShowImage(i64),
+    ShowImage(i64, i64),
 }
 
 #[derive(Debug)]
@@ -68,7 +68,7 @@ impl Component for Gallery {
                 info!("New fetch album!");
                 self.images = FetchState::NotFetching;
                 let future = async {
-                    match fetch_url2("http://localhost:3030/album").await {
+                    match fetch_url2("/api/gallery").await {
                         Ok(md) => Msg::FetchAlbum(FetchState::Success(md)),
                         Err(err) => Msg::FetchAlbum(FetchState::Failed(err)),
                     }
@@ -98,7 +98,7 @@ impl Component for Gallery {
                 // ConsoleService::log(&format!("Fetching album images: {:?}", album_id));
 
                 let future = async move {
-                    match fetch_url2(&format!("http://localhost:3030/album/{}", album_id)).await {
+                    match fetch_url2(&format!("/api/gallery/{}", album_id)).await {
                         Ok(md) => Msg::FetchImages(FetchState::Success(md)),
                         Err(err) => Msg::FetchImages(FetchState::Failed(err)),
                     }
@@ -130,7 +130,7 @@ impl Component for Gallery {
         }
     }
 
-    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
+    fn changed(&mut self, _ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         self.state = PageState::Albums;
         self.images = FetchState::NotFetching;
         // ConsoleService::log("Changing");
@@ -175,21 +175,21 @@ impl Component for Gallery {
                 </div>
             },
 
-            PageState::Images(id) => html! {
+            PageState::Images(album_id) => html! {
                 <div class="flex flex-col overflow-hidden h-full p-3">
                     <div class="flex-1 overflow-y-auto">
                         <div class="flex flex-wrap overflow-y-visible  justify-between">
                         {
                             match &self.images {
                                 FetchState::NotFetching => {
-                                    ctx.link().send_message(Msg::StartFetchImages(id));
+                                    ctx.link().send_message(Msg::StartFetchImages(album_id));
                                     html! {"Fetching images..."}
                                 },
 
                                 FetchState::Fetching => html! {"Fetching getting it!"},
                                 FetchState::Success(data) => html! {
 
-                                    { data.iter().map(|rec| render_image_card(rec, &ctx.link())).collect::<Html>() }
+                                    { data.iter().map(|rec| render_image_card(album_id, rec, &ctx.link())).collect::<Html>() }
                                 },
                                 FetchState::Failed(err) => html! {&err},
                             }
@@ -208,7 +208,7 @@ impl Component for Gallery {
                 </div>
             },
 
-            PageState::ShowImage(image_id) => {
+            PageState::ShowImage(album_id, image_id) => {
                 let mut image: Option<&Image> = Option::None;
 
                 if let FetchState::Success(images) = &self.images {
@@ -217,7 +217,7 @@ impl Component for Gallery {
                 }
 
                 if let Some(image) = image {
-                    let url = format!(" http://localhost:3030/images/{}", image.image_url);
+                    let url = create_url(&format!("/api/gallery/{}/{}", album_id, image.image_url));
                     return html! {
                     <div class="flex flex-col overflow-hidden h-full p-3">
                         <div class="flex-1 overflow-y-auto">
@@ -246,13 +246,12 @@ impl Component for Gallery {
 }
 
 fn render_album_card(album: &Album, link: &Scope<Gallery>) -> Html {
-    let id = album.id;
-    let url = format!(" http://localhost:3030/images/{}", album.image_url);
+    let album_id = album.id;
+    let url = create_url(&format!("/api/gallery/{}/{}", album.id, album.image_url));
 
     html! {
-
         <div class="shadow-xl bg-darkgreen h-40 w-32 mr-2 mb-4 pb-1 flex-none"
-             onclick={link.callback(move |_| Msg::ChangePageState(PageState::Images(id)))}>
+             onclick={link.callback(move |_| Msg::ChangePageState(PageState::Images(album_id)))}>
             <img src={url.clone() }class="p-1 h-32"/>
 
             <div class="text-sm text-beige-lighter font-medium text-center">
@@ -270,14 +269,14 @@ fn render_empty_card() -> Html {
     }
 }
 
-fn render_image_card(image: &Image, link: &Scope<Gallery>) -> Html {
+fn render_image_card(album_id: i64, image: &Image, link: &Scope<Gallery>) -> Html {
     let id = image.id;
-    let url = format!(" http://localhost:3030/images/{}", image.image_url);
+    let url = create_url(&format!("/api/gallery/{}/{}", album_id, image.image_url));
     let title = image.title.clone();
 
     html! {
         <div class="shadow-xl bg-darkgreen h-40 w-32 mr-2 mb-4 pb-1 flex-none"
-             onclick={link.callback(move |_| Msg::ChangePageState(PageState::ShowImage(id))) }>
+             onclick={link.callback(move |_| Msg::ChangePageState(PageState::ShowImage(album_id, id))) }>
             <img src={url.clone()} class="p-1 h-32"/>
 
             <div class="text-sm text-beige-lighter font-medium text-center">

@@ -22,7 +22,7 @@ wasm-bindgen-futures = "0.4.18"
 # pulldown-cmark = "0.7.1"
 # pulldown-cmark = {version = "0.7", no-
 
-yew = { version = "0.19.3" }
+yew = { version = "0.21" , features = ["csr"]}
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires

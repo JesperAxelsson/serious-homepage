@@ -37,7 +37,7 @@ where
 /// Something wrong has occurred while fetching an external resource.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FetchError {
-    err: JsValue,
+    pub err: JsValue,
 }
 impl std::fmt::Display for FetchError {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
@@ -50,6 +50,16 @@ impl From<JsValue> for FetchError {
     fn from(value: JsValue) -> Self {
         FetchError { err: value }
     }
+}
+
+#[cfg(debug_assertions)]
+pub fn create_url(sub_url: &str) -> String {
+    format!("http://localhost:3030{}", sub_url)
+}
+
+#[cfg(not(debug_assertions))]
+pub fn create_url(sub_url: &str) -> String {
+    sub_url.to_string()
 }
 
 /// The possible states a fetch request can be in.
@@ -66,11 +76,12 @@ pub enum FetchState<T> {
 /// Consult the following for an example of the fetch api by the team behind web_sys:
 /// https://rustwasm.github.io/wasm-bindgen/examples/fetch.html
 pub async fn fetch_url(url: &str) -> Result<String, FetchError> {
+    let url = create_url(url);
     let mut opts = RequestInit::new();
     opts.method("GET");
     opts.mode(RequestMode::Cors);
 
-    let request = Request::new_with_str_and_init(url, &opts)?;
+    let request = Request::new_with_str_and_init(&url, &opts)?;
 
     let window: Window = web_sys::window().unwrap();
     let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
@@ -90,6 +101,8 @@ pub async fn fetch_url2<D>(url: &str) -> Result<D, FetchError>
 where
     D: DeserializeOwned,
 {
+    let url = create_url(url);
+
     let mut opts = RequestInit::new();
     opts.method("GET");
     opts.mode(RequestMode::Cors);
@@ -107,11 +120,17 @@ where
     let text: String = js_text.as_string().unwrap().to_string();
 
     // let txt: &str = text.clone().as_str();
-    let data: D = serde_json::from_str::<D>(&text).unwrap();
-
+    // let data: D = serde_json::from_str::<D>(&text);
+    match serde_json::from_str::<D>(&text) {
+        Ok(msg) => return Ok(msg),
+        Err(er) => {
+            return Err(FetchError {
+                err: JsValue::from(er.to_string()),
+            })
+        }
+    }
     // let ss = text.as_string().unwrap();
     // let data: D =  serde_json::from_str(&ss).unwrap();
 
     //let d: D = serde
-    Ok(data)
 }
