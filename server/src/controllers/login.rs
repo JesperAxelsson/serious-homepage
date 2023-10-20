@@ -54,7 +54,7 @@ pub async fn login(
         "select * from account where name = $1",
         credentials.name
     )
-    .fetch_one(&mut conn)
+    .fetch_one(&mut *conn)
     .await
     .map_err(|_| (StatusCode::UNAUTHORIZED, "Account not found".to_owned()))?;
 

@@ -14,7 +14,7 @@ pub async fn get_recipe(
         "select id, title, description, content from recipe where id = $1",
         id
     )
-    .fetch_one(&mut conn)
+    .fetch_one(&mut *conn)
     .await
     .map_err(internal_error);
 
@@ -35,7 +35,7 @@ pub async fn get_recipe(
 
 pub async fn list_recipies(DatabaseConnection(mut conn): DatabaseConnection) -> String {
     let recipies = sqlx::query!("select id, title, description, content from recipe order by id")
-        .fetch_all(&mut conn)
+        .fetch_all(&mut *conn)
         .await
         .expect("Failed to execute list_recipies query")
         .into_iter()
@@ -67,7 +67,7 @@ pub async fn create_recipe(
         create.description,
         create.content,
     )
-    .fetch_one(&mut conn)
+    .fetch_one(&mut *conn)
     .await
     .expect("Failed to insert new recipe");
 
@@ -93,7 +93,7 @@ pub async fn update_recipe(
         update.description,
         update.content,
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await
     .expect("Failed to update recipe");
 
@@ -121,7 +121,7 @@ pub async fn delete_recipe(
             "#,
         id
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await
     .expect("Failed to update recipe");
 

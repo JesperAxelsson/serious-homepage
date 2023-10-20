@@ -17,7 +17,7 @@ pub async fn get_todo(
 ) -> Result<String, (StatusCode, String)> {
     let mut conn = conn;
     let res = sqlx::query!("select id, text, completed from todo where id = $1", id)
-        .fetch_one(&mut conn)
+        .fetch_one(&mut *conn)
         .await
         .map_err(internal_error);
 
@@ -44,7 +44,7 @@ pub async fn list_todos(
         opts.limit.unwrap_or(std::i64::MAX),
         opts.offset.unwrap_or(0)
     )
-    .fetch_all(&mut conn)
+    .fetch_all(&mut *conn)
     .await
     .expect("Failed to execute list_todos query")
     .into_iter()
@@ -71,7 +71,7 @@ pub async fn create_todo(
             "#,
         create.text
     )
-    .fetch_one(&mut conn)
+    .fetch_one(&mut *conn)
     .await
     .expect("Failed to insert new TODO");
 
@@ -95,7 +95,7 @@ pub async fn update_todo(
         update.completed,
         update.text
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await
     .expect("Failed to update TODO");
 
@@ -122,7 +122,7 @@ pub async fn delete_todo(
             "#,
         id
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await
     .expect("Failed to update TODO");
 

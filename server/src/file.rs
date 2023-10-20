@@ -117,7 +117,7 @@ where
 
 // to prevent directory traversal attacks we ensure the path conists of exactly one normal
 // component
-fn path_is_valid(path: &str) -> bool {
+pub fn path_is_valid(path: &str) -> bool {
     let path = std::path::Path::new(&*path);
     let mut components = path.components().peekable();
 

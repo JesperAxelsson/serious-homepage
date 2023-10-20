@@ -1,9 +1,20 @@
-use axum::{extract::Path, http::StatusCode, Json};
+use axum::{
+    body::StreamBody,
+    extract::Path,
+    http::{header, HeaderMap, HeaderValue, StatusCode},
+    response::IntoResponse,
+    Json,
+};
+use tokio_util::io::ReaderStream;
 
 use crate::{
+    file::path_is_valid,
     models::{Album, CreateAlbum, Image},
-    DatabaseConnection, session::SessionId,
+    session::SessionId,
+    DatabaseConnection,
 };
+
+const IMAGE_DIRECTORY: &str = "gallery";
 
 pub async fn get_album(
     Path(id): Path<i64>,
@@ -16,7 +27,7 @@ pub async fn get_album(
             where ai.album_id = $1"#,
         id
     )
-    .fetch_all(&mut conn)
+    .fetch_all(&mut *conn)
     .await
     .expect("Failed to execute list_gallery query")
     .into_iter()
@@ -38,7 +49,7 @@ pub async fn get_album(
 pub async fn list_album(DatabaseConnection(mut conn): DatabaseConnection) -> (StatusCode, String) {
     tracing::debug!("list_album");
     let gallery = sqlx::query!("select id, title, description, image_url from album order by id",)
-        .fetch_all(&mut conn)
+        .fetch_all(&mut *conn)
         .await
         .expect("Failed to execute list_gallery query")
         .into_iter()
@@ -74,7 +85,7 @@ pub async fn create_album(
         new_album.description,
         new_album.image_url,
     )
-    .fetch_one(&mut conn)
+    .fetch_one(&mut *conn)
     .await
     .expect("Failed to insert new TODO");
 
@@ -100,7 +111,7 @@ pub async fn update_album(
         new_album.description,
         new_album.image_url,
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await
     .expect("Failed to insert new TODO");
 
@@ -121,7 +132,7 @@ pub async fn delete_album(
             "#,
         id
     )
-    .execute(&mut conn)
+    .execute(&mut *conn)
     .await
     .expect("Failed to update recipe");
 
@@ -133,4 +144,68 @@ pub async fn delete_album(
         tracing::debug!("    -> recipe id not found!");
         StatusCode::NOT_FOUND
     }
+}
+
+pub async fn get_image(
+    Path((id, file_name)): Path<(i64, String)>,
+    DatabaseConnection(mut conn): DatabaseConnection,
+) -> impl IntoResponse {
+    tracing::debug!("Get gallery image");
+
+    println!("Start query");
+    let gallery = sqlx::query!(
+        "select id, title, description, image_url from album where id = $1",
+        id
+    )
+    .fetch_optional(&mut *conn)
+    .await
+    .expect("Failed to execute gallery get_image query");
+
+    let Some(gallery) = gallery else {
+        return Err((StatusCode::BAD_REQUEST, "Invalid gallery".to_owned()));
+    };
+
+    println!("Goit gallery {:?}", gallery);
+    let gallery = sanitize_filename::sanitize(gallery.title);
+    let file_name = sanitize_filename::sanitize(file_name);
+
+    println!("FileName: {}", file_name);
+    // if !path_is_valid(&file_name) {
+    //     return Err((StatusCode::BAD_REQUEST, "Invalid path".to_owned()));
+    // }
+
+    let path = std::path::Path::new(IMAGE_DIRECTORY)
+        .join(gallery)
+        .join(&file_name);
+    tracing::debug!("Trying to get path:  {:?}", path);
+
+    // `File` implements `AsyncRead`
+    let file = match tokio::fs::File::open(path).await {
+        Ok(file) => file,
+        Err(err) => return Err((StatusCode::NOT_FOUND, format!("File not found: {}", err))),
+    };
+    // convert the `AsyncRead` into a `Stream`
+    let stream = ReaderStream::new(file);
+    // convert the `Stream` into an `axum::body::HttpBody`
+    let body = StreamBody::new(stream);
+
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_str("text/toml; charset=utf-8").unwrap(), // This is wrong, add correct image here
+    );
+    headers.insert(
+        header::CONTENT_DISPOSITION,
+        HeaderValue::from_str(&format!("attachment; filename=\"{}\"", file_name)).unwrap(),
+    );
+
+    // let headers = Headers([
+    //     (header::CONTENT_TYPE, "text/toml; charset=utf-8"),
+    //     (
+    //         header::CONTENT_DISPOSITION,
+    //         "attachment; filename=\"Cargo.toml\"",
+    //     ),
+    // ]);
+
+    Ok((headers, body))
 }

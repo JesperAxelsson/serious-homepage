@@ -8,12 +8,13 @@ mod session;
 use dotenv::dotenv;
 use sqlx::PgPool;
 use std::env;
+use tower_http::cors::CorsLayer;
 
 use async_session::MemoryStore;
 use axum::{
     async_trait,
     extract::FromRequestParts,
-    http::{request::Parts, StatusCode},
+    http::{request::Parts, HeaderValue, Method, StatusCode},
     routing::{get, post},
     Extension, Router,
 };
@@ -42,7 +43,7 @@ async fn main() {
     // initialize tracing
     // tracing_subscriber::fmt::init();
 
-    let filter = filter::LevelFilter::DEBUG;
+    let filter = filter::LevelFilter::INFO;
     let (filter, _reload_handle) = reload::Layer::new(filter);
 
     tracing_subscriber::registry()
@@ -110,12 +111,25 @@ async fn main() {
                 .put(gallery::update_album)
                 .delete(gallery::delete_album),
         )
+        .route(
+            "/gallery/:id/:file_name",
+            get(gallery::get_image), // .put(gallery::update_album)
+                                     // .delete(gallery::delete_album),
+        )
         .route("/file/:file_name", get(file::get_file))
         // .route("/file", get_service(ServeDir::new("files")).handle_error(handle_error))
         .route("/image", post(file::upload_many_file))
         .route("/image/:file_name", post(file::save_request_body))
         .layer(Extension(pool))
         .layer(Extension(store));
+
+    // Prepend /api
+    let app = Router::new().nest("/api", app).layer(
+        CorsLayer::new()
+            // .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+            .allow_origin("http://localhost:8000".parse::<HeaderValue>().unwrap())
+            .allow_methods([Method::GET, Method::PUT, Method::POST, Method::DELETE]),
+    );
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3030));
     tracing::debug!("listening on {}", addr);

@@ -2,15 +2,29 @@ version: '3'
 services:
   database:
     image: "postgres" # use latest official postgres version
+    container_name: local_pgdb
+    restart: always
     ports:
         - "5432:5432"
     user: "postgres"
     # password: "postgres"
-    # POSTGRES_DB: "postgres"
+    # POSTGRES_DB: "realworld"
     env_file:
       - database.env # configure postgres
-    # volumes:
-    #   - database-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+    volumes:
+      - database-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+      PGADMIN_DEFAULT_PASSWORD: strong-password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
-# volumes:
-#   database-data: # named volumes can be managed easier using docker-compose
+volumes:
+  database-data: # named volumes can be managed easier using docker-compose
+  pgadmin-data:
