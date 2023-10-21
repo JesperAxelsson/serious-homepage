@@ -3,24 +3,33 @@
 ## About
 
 This is my new reworked high tech wasm homepage!
-Based on [`yew-wasm-pack-template`](https://github.com/yewstack/yew-wasm-pack-template)
 
 ## 🚴 Usage
 
 ```
-yarn install
+npm install
 ```
 
-### 🛠️ Build with `yarn run build`
+### 🛠️ Build with `npm run build`
 
 ```
-yarn run build
+npm run build
 ```
 
-### 🔬 Serve locally with `yarn run start:dev`
+### 🔬 Serve locally with `trunk serve`
 
 ```
-yarn run start:dev
+trunk serve
 ```
+
+
+
+### Build the css with `npm run build:css`
+
+```
+npm run build:css
+```
+
+
 
 

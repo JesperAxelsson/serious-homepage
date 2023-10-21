@@ -78,13 +78,13 @@ impl Component for App {
             <div class="flex flex-col sm:flex-row flex-1 overflow-hidden h-full">
                 <div class="w-auto flex-grow-0 sm:flex-grow-1 ">
                     <div class="shadow flex flex-col h-full flex-1 justify-between max-h-full">
-                        <div class="px-2 sm:px-0 sm:py-3 flex sm:flex-grow-1 flex-1 sm:flex-col" >
-                            { self.render_link(PageState::Home, "Home", ctx) }
-                            { self.render_link(PageState::Recipies, "Recipies", ctx) }
-                            { self.render_link(PageState::Gallery, "Gallery", ctx) }
-                            { self.render_link(PageState::Todo, "Todo", ctx) }
-                            { self.render_link(PageState::Blog, "Blog", ctx) }
-                        </div>
+                       <div class="px-2 sm:px-0 sm:py-3 flex sm:flex-grow-1 flex-1 sm:flex-col" >
+                           { self.render_link(PageState::Home, "Home", ctx) }
+                           { self.render_link(PageState::Recipies, "Recipies", ctx) }
+                           { self.render_link(PageState::Gallery, "Gallery", ctx) }
+                           { self.render_link(PageState::Todo, "Todo", ctx) }
+                           { self.render_link(PageState::Blog, "Blog", ctx) }
+                       </div>
                         <div class="hidden sm:flex flex-grow-0 sm:pl-3 sm:pb-3 sm:pt-2 bg-darkgreen text-sm sm:text-regular text-center">
                             <p class="text-darkblue">{ "Written by " }<br/><div><a class="text-beige font-medium truncate" href="https://github.com/JesperAxelsson/" target="_blank">{ "Jesper Axelsson" }</a></div></p>
                         </div>

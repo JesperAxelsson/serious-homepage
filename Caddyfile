@@ -1,0 +1,6 @@
+{
+	admin off
+}
+:8000
+
+reverse_proxy :8080
