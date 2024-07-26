@@ -1,5 +1,6 @@
 // mod auth;
 // mod error;
+mod repo;
 mod controllers;
 mod file;
 mod models;
@@ -69,10 +70,14 @@ async fn main() {
     let store = MemoryStore::new();
 
     let db_url = env::var("DATABASE_URL").expect("Failed to find 'DATABASE_URL'");
+    //
     // Postgres
     let pool = PgPool::connect(&db_url)
         .await
         .expect("Failed to connect to pool");
+
+    // Do the migrations
+    // sqlx::migrate!("migrations").run(&pool).await;
 
     // pretty_env_logger::init();
 
